@@ -3,7 +3,6 @@
 # include <time.h>
 
 void initializeBoard(int board[], int board_size){
-
     for(int i = 0; i < board_size; i++){
         board[i] = i;
     }
@@ -45,13 +44,55 @@ void cheekSpecialCell(int board[]){
     board[20] = 2;
 }
 
-void showBoard(int on_screen_board[], int board_size){
+void showBoard(int display_board[], int board_size){
     for(int i = 1; i < board_size; i++){
-        printf("%d\t", on_screen_board[i]);
+        printf("%d\t", display_board[i]);
         if(i % 10 == 0){
             printf("\n");
         }
     }
+}
+
+void playerTurn(int display_board[], int logic_board[], int board_size, int *num_dice, int *player_position, int *counter_dice_condition){
+    char roll_dice = 'n';
+
+        //Show the board on screen.
+        showBoard(display_board, board_size);
+
+        //Rolling the dice.
+        printf("Roll the dice('y' for yes)?: ");
+        scanf(" %c", &roll_dice);
+        
+        //clear the screen.
+        system("cls");//fputs("\033[2J\033[H", stdout);
+
+        *num_dice = rollDice(roll_dice);
+        printf("Dice result: %d\n", *num_dice);
+
+        //Show the player position.
+        printf("Last position: %d\n", *player_position);
+        *player_position = moveToken(*player_position, *num_dice);
+        *player_position = logic_board[*player_position];
+
+        //cheek if extra turn or reload
+        if(*num_dice == 6){//falta turno extra
+            *counter_dice_condition += 1;
+            printf("contador valor: %d\n", *counter_dice_condition);
+            if(*counter_dice_condition == 3){
+                *counter_dice_condition = 0;
+                *player_position = logic_board[1];
+            }
+        } else {
+            *counter_dice_condition = 0;
+            printf("contador valor: %d\n", *counter_dice_condition);
+        }
+
+        if(*player_position >= 100){
+            *player_position = 100;
+            printf("You won!");
+            exit(EXIT_SUCCESS);
+        }
+        printf("New position: %d\n", *player_position);
 }
 
 /*int save_game(){}
@@ -61,56 +102,18 @@ int main(){
     int game_on = 1;//control
     srand(time(NULL));
 
-    int num_dice, player_position = 1;    
-    int logic_board[101], on_screen_board[101];
+    int num_dice = 0, player_position = 1;    
+    int logic_board[101], display_board[101];
     int board_size = sizeof(logic_board) / sizeof(logic_board[0]);
-    int counter_dice_condition;
+    int counter_dice_condition = 0;
     
     //initialize the board.
-    initializeBoard(on_screen_board, board_size);
+    initializeBoard(display_board, board_size);
     initializeBoard(logic_board, board_size);
     cheekSpecialCell(logic_board);
 
     while(game_on == 1){
-        char roll_dice = 'n';
-
-        //Show the board on screen.
-        showBoard(on_screen_board, board_size);
-
-        //Rolling the dice.
-        printf("Roll the dice('y' for yes)?: ");
-        scanf(" %c", &roll_dice);
-        
-        //clear the screen.
-        system("cls");//fputs("\033[2J\033[H", stdout);
-
-        num_dice = rollDice(roll_dice);
-        printf("Dice result: %d\n", num_dice);
-
-        //Show the player position.
-        printf("Last position: %d\n", player_position);
-        player_position = moveToken(player_position, num_dice);
-        player_position = logic_board[player_position];
-
-        //cheek if extra turn or reload
-        if(num_dice == 6){//falta turno extra
-            counter_dice_condition += 1;
-            printf("contador valor: %d\n", counter_dice_condition);
-            if(counter_dice_condition == 3){
-                counter_dice_condition = 0;
-                player_position = logic_board[1];
-            }
-        } else {
-            counter_dice_condition = 0;
-            printf("contador valor: %d\n", counter_dice_condition);
-        }
-
-        if(player_position >= 100){
-            player_position = 100;
-            printf("You won!");
-            break;
-        }
-        printf("New position: %d\n", player_position);
+        playerTurn(display_board, logic_board, board_size, &num_dice, &player_position, &counter_dice_condition);
     }
     
     return 0;
