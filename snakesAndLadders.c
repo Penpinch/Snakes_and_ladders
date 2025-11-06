@@ -3,7 +3,7 @@
 # include <time.h>
 # include "logic.h"
 
-void playerTurn(int display_board[], int logic_board[], int board_size, int enable_dice, int *num_dice, int *player_position, int *counter_dice_condition, int *curren_turn){
+void playerTurn(int display_board[], int logic_board[], int board_size, int enable_dice, int *num_dice, int *player_position, int *counter_dice_condition, int *curren_turn, int *game_on){
     char roll_dice = 'n';
 
     //Show the board on screen.
@@ -42,20 +42,23 @@ void playerTurn(int display_board[], int logic_board[], int board_size, int enab
         printf("contador valor: %d\n", *counter_dice_condition);
     }
 
-    if(*player_position >= 100){
-        *player_position = 100;
-        printf("You won!"); //player name
-        exit(EXIT_SUCCESS);
-    }
     printf("New position: %d\n", *player_position);
 
     //upload board
     showBoard(display_board, board_size);
     system("pause");
-}
 
-/*int save_game(){}
-int load_gamme(){}*/
+    if(*player_position >= logic_board[100]){
+    *player_position = logic_board[100];
+    printf("You won!\n");
+    system("pause");
+    *game_on = 0;
+    return;
+    } else {
+        *game_on = 1;
+        return;
+    }
+}
 
 int main(){
     int game_on = 1;//control
@@ -87,7 +90,7 @@ int main(){
             while(game_on == 1){
                 system("cls");
                 printf("Player x.\n");
-                playerTurn(display_board, logic_board, board_size, enable_dice, &num_dice_one, &player_position_one, &counter_dice_condition_one, &current_turn);
+                playerTurn(display_board, logic_board, board_size, enable_dice, &num_dice_one, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on);
             }
             break;
         case 2:
@@ -95,11 +98,11 @@ int main(){
                 if(current_turn % 2 == 0){
                     system("cls");
                     printf("Player 2.\n");
-                    playerTurn(display_board, logic_board, board_size, enable_dice, &num_dice_two, &player_position_two, &counter_dice_condition_two, &current_turn);
+                    playerTurn(display_board, logic_board, board_size, enable_dice, &num_dice_two, &player_position_two, &counter_dice_condition_two, &current_turn, &game_on);
                 } else {
                     system("cls");
                     printf("Player 1.\n");
-                    playerTurn(display_board, logic_board, board_size, enable_dice, &num_dice_one, &player_position_one, &counter_dice_condition_one, &current_turn);
+                    playerTurn(display_board, logic_board, board_size, enable_dice, &num_dice_one, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on);
                 }
                 current_turn += 1; 
             }
@@ -110,20 +113,22 @@ int main(){
                     system("cls");
                     enable_dice = 0;
                     printf("Computer.\n");
-                    playerTurn(display_board, logic_board, board_size, enable_dice, &num_dice_two, &player_position_two, &counter_dice_condition_two, &current_turn);
+                    playerTurn(display_board, logic_board, board_size, enable_dice, &num_dice_two, &player_position_two, &counter_dice_condition_two, &current_turn, &game_on);
                 } else {
                     system("cls");
                     enable_dice = 1;
                     printf("Player x.\n");
-                    playerTurn(display_board, logic_board, board_size, enable_dice, &num_dice_one, &player_position_one, &counter_dice_condition_one, &current_turn);
+                    playerTurn(display_board, logic_board, board_size, enable_dice, &num_dice_one, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on);
                 }
                 current_turn += 1; 
-            }
+            }   
             break;
         default:
             printf("Invalid mode. ");
+            exit(EXIT_FAILURE);
             break;
     }
-    
+    saveGame(player_position_one, player_position_two, current_turn, counter_dice_condition_one, counter_dice_condition_two, game_mode);
+
     return 0;
 }
