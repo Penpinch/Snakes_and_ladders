@@ -26,6 +26,16 @@ void playerTurn(int display_board[], int logic_board[], int board_size, int enab
     //Show the player position.
     printf("Last position: %d\n", *player_position);
     *player_position = moveToken(*player_position, *num_dice);
+
+    //Victory check
+    if(*player_position >= 100){
+        *player_position = 100;
+        printf("%d\n", *player_position);
+        printf("You won!\n");
+        system("pause");
+        *game_on = 0;
+        return;
+    }
     *player_position = logic_board[*player_position];
 
     //cheek if extra turn or restart
@@ -47,17 +57,6 @@ void playerTurn(int display_board[], int logic_board[], int board_size, int enab
     //upload board
     showBoard(display_board, board_size);
     system("pause");
-
-    if(*player_position >= logic_board[100]){
-    *player_position = logic_board[100];
-    printf("You won!\n");
-    system("pause");
-    *game_on = 0;
-    return;
-    } else {
-        *game_on = 1;
-        return;
-    }
 }
 
 int main(){

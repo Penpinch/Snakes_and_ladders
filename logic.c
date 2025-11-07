@@ -18,7 +18,7 @@ int rollDice(char roll_dice){
 }
 
 int moveToken(int player_position, int num_dice){
-    return player_position += num_dice; 
+    return player_position + num_dice; 
 }
 
 void cheekSpecialCell(int board[]){
@@ -34,10 +34,10 @@ void cheekSpecialCell(int board[]){
     board[75] = 96;
 
     //Snakes
-    //board[99] = 59;
-    //board[95] = 76;
-    //board[92] = 73;
-    //board[84] = 64;
+    board[99] = 59;
+    board[95] = 76;
+    board[92] = 73;
+    board[84] = 64;
     board[68] = 34;
     board[67] = 25;
     board[45] = 37;
