@@ -2,6 +2,9 @@
 # include <stdlib.h>
 # include <time.h>
 # include "logic.h"
+# include <string.h>
+
+
 
 void playerTurn(int display_board[], int logic_board[], int board_size, int enable_dice, int *num_dice, int *player_position, int *counter_dice_condition, int *curren_turn, int *game_on){
     char roll_dice = 'n';
@@ -64,6 +67,8 @@ int main(){
     srand(time(NULL));
 
     int game_mode = 0, enable_dice = 1;
+    struct PlayerName name = {"", "Computer friend"};
+    
     int num_dice_one = 0, player_position_one = 1, counter_dice_condition_one = 0;   
     int num_dice_two = 0, player_position_two = 1, counter_dice_condition_two = 0;     
     int logic_board[101], display_board[101];
@@ -78,6 +83,7 @@ int main(){
     printf("2. 2 players.\n");
     printf("3. against the computer. \n");
     scanf("%d", &game_mode);
+    while(getchar() != '\n');
 
     //initialize the board.
     initializeBoard(display_board, board_size);
@@ -86,37 +92,40 @@ int main(){
 
     switch (game_mode){
         case 1:
+            setName(&name, game_mode);
             while(game_on == 1){
                 system("cls");
-                printf("Player x.\n");
+                printf("%s.\n", name.player_one_name);
                 playerTurn(display_board, logic_board, board_size, enable_dice, &num_dice_one, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on);
             }
             break;
         case 2:
+            setName(&name, game_mode);
             while(game_on == 1){
                 if(current_turn % 2 == 0){
                     system("cls");
-                    printf("Player 2.\n");
+                    printf("%s.\n", name.player_two_name);
                     playerTurn(display_board, logic_board, board_size, enable_dice, &num_dice_two, &player_position_two, &counter_dice_condition_two, &current_turn, &game_on);
                 } else {
                     system("cls");
-                    printf("Player 1.\n");
+                    printf("%s.\n", name.player_one_name);
                     playerTurn(display_board, logic_board, board_size, enable_dice, &num_dice_one, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on);
                 }
                 current_turn += 1; 
             }
             break;
         case 3:
+            setName(&name, game_mode);
             while(game_on == 1){
                 if(current_turn % 2 == 0){
                     system("cls");
                     enable_dice = 0;
-                    printf("Computer.\n");
+                    printf("%s.\n", name.player_two_name);
                     playerTurn(display_board, logic_board, board_size, enable_dice, &num_dice_two, &player_position_two, &counter_dice_condition_two, &current_turn, &game_on);
                 } else {
                     system("cls");
                     enable_dice = 1;
-                    printf("Player x.\n");
+                    printf("%s.\n", name.player_one_name);
                     playerTurn(display_board, logic_board, board_size, enable_dice, &num_dice_one, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on);
                 }
                 current_turn += 1; 
@@ -127,7 +136,7 @@ int main(){
             exit(EXIT_FAILURE);
             break;
     }
-    saveGame(player_position_one, player_position_two, current_turn, counter_dice_condition_one, counter_dice_condition_two, game_mode);
+    saveGame(&name, player_position_one, player_position_two, current_turn, counter_dice_condition_one, counter_dice_condition_two, game_mode);
 
     return 0;
 }
