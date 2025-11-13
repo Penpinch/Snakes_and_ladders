@@ -4,8 +4,6 @@
 # include "logic.h"
 # include <string.h>
 
-
-
 void playerTurn(int display_board[], int logic_board[], int board_size, int enable_dice, int *num_dice, int *player_position, int *counter_dice_condition, int *curren_turn, int *game_on){
     char roll_dice = 'n';
 
@@ -66,7 +64,7 @@ int main(){
     int game_on = 1;//control
     srand(time(NULL));
 
-    int game_mode = 0, enable_dice = 1;
+    int game_mode = 0, enable_dice = 1, game_load;
     struct PlayerName name = {"", "Computer friend"};
     
     int num_dice_one = 0, player_position_one = 1, counter_dice_condition_one = 0;   
@@ -137,6 +135,9 @@ int main(){
             break;
     }
     saveGame(&name, player_position_one, player_position_two, current_turn, counter_dice_condition_one, counter_dice_condition_two, game_mode);
+    printf("Game to load: ");
+    scanf("%d", &game_load);
+    loadGame(&name, game_mode, &player_position_one, &player_position_two, &current_turn, &counter_dice_condition_one, &counter_dice_condition_two, &game_mode);
 
     return 0;
 }

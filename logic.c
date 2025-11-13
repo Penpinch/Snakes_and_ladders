@@ -89,10 +89,10 @@ void saveGame(const struct PlayerName *name, int player_position_one, int player
     FILE *game_3;
     FILE *game_4;
 
-    game_1 = fopen("Partida 1.txt", "w");
-    game_2 = fopen("Partida 2.txt", "w");
-    game_3 = fopen("Partida 3.txt", "w");
-    game_4 = fopen("Partida 4.txt", "w");
+    game_1 = fopen("Game 1.txt", "w");
+    game_2 = fopen("Game 2.txt", "w");
+    game_3 = fopen("Game 3.txt", "w");
+    game_4 = fopen("Game 4.txt", "w");
 
     printf("Where to save?: \n");
     scanf("%d", &game_option);
@@ -101,49 +101,35 @@ void saveGame(const struct PlayerName *name, int player_position_one, int player
         switch (game_option){
             case 1:
                 if(game_mode == 1){
-                    fprintf(game_1, "Game mode: %d\n", game_mode);
-                    fprintf(game_1, "Player name: %s\n", name -> player_one_name);
-                    fprintf(game_1, "Player position: %d\n ", player_position_one);
+                    //Game mode, Player name, Player position
+                    fprintf(game_1, "%d %s %d", game_mode, name -> player_one_name, player_position_one);
                 } else {
-                    fprintf(game_1, "Game mode: %d\n Current turn: %d\n", game_mode, current_turn);
-                    fprintf(game_1, "Player one name: %s\n Player position one: %d\n Dice counter one: %d\n", name -> player_one_name, player_position_one, counter_dice_condition_one);
-                    fprintf(game_1, "Player two name: %s\n Player position two: %d\n Dice counter two: %d\n", name -> player_two_name, player_position_two, counter_dice_condition_two);
+                    //Game mode, Current turn, Player one name, Player position one, Dice counter one, Player two name, Player position two, Dice counter two
+                    fprintf(game_1, "%d %d %s %d %d %s %d %d", game_mode, current_turn, name -> player_one_name, player_position_one, counter_dice_condition_one, name -> player_two_name, player_position_two, counter_dice_condition_two);
                 }
                 break;
 
             case 2:
                 if(game_mode == 1){
-                    fprintf(game_2, "Game mode: %d\n", game_mode);
-                    fprintf(game_2, "Player name: %s\n", name -> player_one_name);
-                    fprintf(game_2, "Player position: %d\n ", player_position_one);
+                    fprintf(game_2, "%d %s %d", game_mode, name -> player_one_name, player_position_one);
                 } else {
-                    fprintf(game_2, "Game mode: %d\n Current turn: %d\n", game_mode, current_turn);
-                    fprintf(game_2, "Player one name: %s\n Player position one: %d\n Dice counter one: %d\n", name -> player_one_name, player_position_one, counter_dice_condition_one);
-                    fprintf(game_2, "Player two name: %s\n Player position two: %d\n Dice counter two: %d\n", name -> player_two_name, player_position_two, counter_dice_condition_two);
+                    fprintf(game_2, "%d %d %s %d %d %s %d %d", game_mode, current_turn, name -> player_one_name, player_position_one, counter_dice_condition_one, name -> player_two_name, player_position_two, counter_dice_condition_two);
                 }
                 break;
             
             case 3:
                 if(game_mode == 1){
-                    fprintf(game_3, "Game mode: %d\n", game_mode);
-                    fprintf(game_3, "Player name: %s\n", name -> player_one_name);
-                    fprintf(game_3, "Player position: %d\n ", player_position_one);
+                    fprintf(game_3, "%d %s %d", game_mode, name -> player_one_name, player_position_one);
                 } else {
-                    fprintf(game_3, "Game mode: %d\n Current turn: %d\n", game_mode, current_turn);
-                    fprintf(game_3, "Player one name: %s\n Player position one: %d\n Dice counter one: %d\n", name -> player_one_name, player_position_one, counter_dice_condition_one);
-                    fprintf(game_3, "Player two name: %s\n Player position two: %d\n Dice counter two: %d\n", name -> player_two_name, player_position_two, counter_dice_condition_two);
+                    fprintf(game_3, "%d %d %s %d %d %s %d %d", game_mode, current_turn, name -> player_one_name, player_position_one, counter_dice_condition_one, name -> player_two_name, player_position_two, counter_dice_condition_two);
                 }
                 break;
 
             case 4:
                 if(game_mode == 1){
-                    fprintf(game_4, "Game mode: %d\n", game_mode);
-                    fprintf(game_4, "Player name: %s\n", name -> player_one_name);
-                    fprintf(game_4, "Player position: %d\n ", player_position_one);
+                    fprintf(game_4, "%d %s %d", game_mode, name -> player_one_name, player_position_one);
                 } else {
-                    fprintf(game_4, "Game mode: %d\n Current turn: %d\n", game_mode, current_turn);
-                    fprintf(game_4, "Player one name: %s\n Player position one: %d\n Dice counter one: %d\n", name -> player_one_name, player_position_one, counter_dice_condition_one);
-                    fprintf(game_4, "Player two name: %s\n Player position two: %d\n Dice counter two: %d\n", name -> player_two_name, player_position_two, counter_dice_condition_two);
+                    fprintf(game_4, "%d %d %s %d %d %s %d %d", game_mode, current_turn, name -> player_one_name, player_position_one, counter_dice_condition_one, name -> player_two_name, player_position_two, counter_dice_condition_two);
                 }
                 break;
         }
@@ -153,11 +139,27 @@ void saveGame(const struct PlayerName *name, int player_position_one, int player
         fclose(game_4);
 
     } else {
-        printf("Errrrrrror");
+        printf("Error opening file.");
     }
-
 }
 
-void loadGame(){
-    return;
+void loadGame(const struct PlayerName *name, int game_load, int *player_position_one, int *player_position_two, int *current_turn, int *counter_dice_condition_one, int *counter_dice_condition_two, int *game_mode){
+    int temporal_game_mode;
+    char name_files[15];
+
+    sprintf(name_files, "Game %d.txt", game_load);
+
+    FILE *file = fopen(name_files, "r");
+    if(file == NULL){
+        printf("Error loadinf file.");
+        return;
+    }
+    fscanf(file, "%d", &temporal_game_mode);
+
+    if(temporal_game_mode == 1){
+        fscanf(file, "%d %s %d", game_mode, name -> player_one_name, player_position_one);
+    } else {
+        fscanf(file, "%d %d %s %d %d %s %d %d", game_mode, current_turn, name -> player_one_name, player_position_one, counter_dice_condition_one, name -> player_two_name, player_position_two, counter_dice_condition_two);
+    }
+    fclose(file);
 }
