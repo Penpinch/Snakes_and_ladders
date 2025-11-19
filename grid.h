@@ -5,7 +5,7 @@
 #define COLUMNS 10
 
 typedef struct {
-    int grid[ROWS][COLUMNS]; // 20 filas (x) y 10 columnas(y)
+    int grid[ROWS][COLUMNS]; // 10 filas (x) y 10 columnas(y)
     int rows;
     int columns;
     int cellsize;

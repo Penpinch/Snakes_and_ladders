@@ -3,7 +3,7 @@
 
 struct PlayerName{
     char player_one_name[20];
-    char player_two_name[20];
+    char player_two_name[20]; 
 };
 
 void initializeBoard(int board[], int board_size);

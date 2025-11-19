@@ -3,6 +3,8 @@
 # include <time.h>
 # include "logic.h"
 # include <string.h>
+# include "grid.h" 
+# include "raylib.h"
 
 void playerTurn(int display_board[], int logic_board[], int board_size, int enable_dice, int *num_dice, int *player_position, int *counter_dice_condition, int *curren_turn, int *game_on){
     char roll_dice = 'n';
@@ -61,11 +63,14 @@ void playerTurn(int display_board[], int logic_board[], int board_size, int enab
 }
 
 int main(){
+    tablero();
+
     int game_on = 1;//control
     srand(time(NULL));
 
     int game_mode = 0, enable_dice = 1, game_load;
     struct PlayerName name = {"", "Computer friend"};
+    struct Grid g;
     
     int num_dice_one = 0, player_position_one = 1, counter_dice_condition_one = 0;   
     int num_dice_two = 0, player_position_two = 1, counter_dice_condition_two = 0;     

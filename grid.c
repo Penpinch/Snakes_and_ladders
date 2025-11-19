@@ -2,19 +2,6 @@
 #include "grid.h"
 #include <stdio.h>
 
-/*
-cd /d/proyecto/Snakes_and_ladders                                                                                                        
-gcc Graphics.c -o prueba.exe -I /c/raylib/include -L /c/raylib/lib -lraylib -lopengl32 -lgdi32 -lwinmm -mconsole
-./prueba.exe
-
-{
-    "files.associations": {
-        "grid.h": "c",
-        "stdio.h": "c"
-    }
-}
-*/
-
 void Grid_init(Grid *g, int cellsize) {
     g->rows = 10;
     g->columns = 10;
