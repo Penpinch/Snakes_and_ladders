@@ -162,4 +162,4 @@ void loadGame(const struct PlayerName *name, int game_load, int *player_position
         fscanf(file, "%d %d %s %d %d %s %d %d", game_mode, current_turn, name -> player_one_name, player_position_one, counter_dice_condition_one, name -> player_two_name, player_position_two, counter_dice_condition_two);
     }
     fclose(file);
-}
+} 

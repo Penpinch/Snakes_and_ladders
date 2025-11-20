@@ -1,12 +1,16 @@
+# include "raylib.h"
 # include <stdio.h>
 # include <stdlib.h>
 # include <time.h>
 # include "logic.h"
 # include <string.h>
 # include "grid.h" 
-# include "raylib.h"
 
-void playerTurn(int display_board[], int logic_board[], int board_size, int enable_dice, int *num_dice, int *player_position, int *counter_dice_condition, int *curren_turn, int *game_on){
+//gcc snakesAndLadders.c logic.c grid.c -o nolesabemos -lraylib -lopengl32 -lgdi32 -mconsole
+
+void playerTurn(
+    int display_board[], int logic_board[], int board_size, int enable_dice, int *num_dice, 
+    int *player_position, int *counter_dice_condition, int *curren_turn, int *game_on){
     char roll_dice = 'n';
 
     //Show the board on screen.
@@ -63,14 +67,38 @@ void playerTurn(int display_board[], int logic_board[], int board_size, int enab
 }
 
 int main(){
-    tablero();
+    
+    //Graphics variables. DO NOT TOUCH
+    int cellsize = 60;
+    Grid g;
+
+    //Color darkBlue = {44, 44, 127, 255};
+    Grid_init(&g, cellsize);//inicializa la estructura grid
+
+    const int screenwidth = g.columns * g.cellsize;//ancho y alto de la pantalla, se calcula con la cantidad de filas/columans multiplicadas por el tamaño de cada una
+    const int screenheight = g.rows * g.cellsize;
+    char texto[50];
+
+    InitWindow(screenwidth+150, screenheight+150, "Snakes And Ladderrs"); // ventana de inicializacion
+    SetTargetFPS(60);
+
+    while(!WindowShouldClose()){//mantiene la ventana abierta
+        BeginDrawing();
+        ClearBackground(RAYWHITE);
+        
+        showGrid(&g, cellsize, screenwidth, screenheight, texto);
+
+        EndDrawing();
+    }
+
+    CloseWindow();//cierra la ventana 
+//-------------------
 
     int game_on = 1;//control
     srand(time(NULL));
 
     int game_mode = 0, enable_dice = 1, game_load;
     struct PlayerName name = {"", "Computer friend"};
-    struct Grid g;
     
     int num_dice_one = 0, player_position_one = 1, counter_dice_condition_one = 0;   
     int num_dice_two = 0, player_position_two = 1, counter_dice_condition_two = 0;     

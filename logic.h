@@ -22,4 +22,4 @@ void saveGame(const struct PlayerName *name, int player_position_one, int player
 
 void loadGame(const struct PlayerName *name, int game_load, int *player_position_one, int *player_position_two, int *current_turn, int *counter_dice_condition_one, int *counter_dice_condition_two, int *game_mode);
 
-#endif
+#endif 
