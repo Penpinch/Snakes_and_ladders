@@ -11,6 +11,8 @@ typedef struct {
 // Funciones para “constructor”
 void Grid_init(Grid *g, int cellsize);
 
-void showGrid(Grid *g, int cellsize, const int screenwidth, const int screenheight, char texto[]);
+void showGrid(Grid *g, int cellsize, const int screenwidth, const int screenheight, char text[]);
+
+void DrawDice(int dice_value, Texture2D dicetextures[]);
 
 #endif 

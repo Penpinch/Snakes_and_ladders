@@ -18,6 +18,10 @@ int rollDice(char roll_dice){
     }
 }
 
+int rollDiceGraphic(){
+    return 1 + rand() %6;
+}
+
 int moveToken(int player_position, int num_dice){
     return player_position + num_dice; 
 }
@@ -46,18 +50,22 @@ void cheekSpecialCell(int board[]){
     board[20] = 2;
 }
 
-void showBoard(int display_board[], int board_size){
+void setName(struct PlayerName *name, int game_mode, const char *input_player_one, const char *input_player_two){
+    switch (game_mode){
+        case 1:
+        case 3:
+            strncpy(name -> player_one_name, input_player_one, sizeof(name -> player_one_name));
+            name -> player_one_name[sizeof(name -> player_one_name) - 1] = '\0';
+            break;
+        case 2:
+            strncpy(name -> player_one_name, input_player_one, sizeof(name -> player_one_name));
+            name -> player_one_name[sizeof(name -> player_one_name) - 1] = '\0';
 
-    for(int row = 9; row >= 0; row--){
-        for(int column = 1; column <= 10; column++){
-            int index = row * 10 + column;
-            printf("%3d\t", display_board[index]);
-        }
-        printf("\n\v");
+            strncpy(name -> player_two_name, input_player_two, sizeof(name -> player_two_name));
+            name -> player_two_name[sizeof(name -> player_two_name) - 1] = '\0';
+            break;
     }
-}
-
-void setName(struct PlayerName *name, int game_mode){
+    /*
     switch (game_mode){
         case 1:
             printf("Player 1: \n");
@@ -79,7 +87,7 @@ void setName(struct PlayerName *name, int game_mode){
             break;
         default:
             break;
-    }
+    }*/
 }
 
 void saveGame(const struct PlayerName *name, int player_position_one, int player_position_two, int current_turn, int counter_dice_condition_one, int counter_dice_condition_two, int game_mode){

@@ -9,13 +9,29 @@
 //gcc snakesAndLadders.c logic.c grid.c -o nolesabemos -lraylib -lopengl32 -lgdi32 -mconsole
 
 void playerTurn(
-    int display_board[], int logic_board[], int board_size, int enable_dice, int *num_dice, 
+    Grid *g, int cellsize, int screenwidth,int screenheight, char text[],  
+    int logic_board[], int board_size, int enable_dice, int *num_dice, 
     int *player_position, int *counter_dice_condition, int *curren_turn, int *game_on){
     char roll_dice = 'n';
 
-    //Show the board on screen.
-    showBoard(display_board, board_size);
+    showGrid(g, cellsize, screenwidth, screenheight, text); //Show the board on screen.
 
+    //Rolling the dice.
+    /*if(enable_dice == 1){
+        DrawText("Roll the dice('y' for yes)?: ", 0, 0, 20, RED);
+        roll_dice = GetKeyPressed();           
+    } else {
+        roll_dice = 'y';
+    }
+
+    ClearBackground(RAYWHITE);
+
+    *num_dice = rollDice(roll_dice);
+    DrawText(TextFormat("Dice result: %d", *num_dice), 20, 20, 20, BLUE);
+*/
+    
+    //showBoard(display_board, board_size);//Show the board on screen.
+/*
     //Rolling the dice.
     if(enable_dice == 1){
         printf("Roll the dice('y' for yes)?: ");
@@ -62,38 +78,72 @@ void playerTurn(
     printf("New position: %d\n", *player_position);
 
     //upload board
-    showBoard(display_board, board_size);
+    //showBoard(display_board, board_size);
     system("pause");
+    */
+}
+
+int capturePlayerName(
+    char *temporal_buffer_player_one, char *temporal_buffer_player_two, 
+    int *writing_player_one, int *writing_player_two, int game_mode){
+    
+    static int cursor1 = 0;
+    static int cursor2 = 0;
+
+    if(*writing_player_one){
+        int key = GetCharPressed();
+
+        while(key > 0){
+            if(key >= 32 && key <= 125 && cursor1 <19){
+                temporal_buffer_player_one[cursor1++] = (char)key;
+                temporal_buffer_player_one[cursor1] = '\0';
+            }
+            key = GetCharPressed();
+        }
+        if(IsKeyPressed(KEY_BACKSPACE) && cursor1 > 0){
+            cursor1--;
+            temporal_buffer_player_one[cursor1] = '\0';
+        }
+        if(IsKeyPressed(KEY_ENTER)){
+            *writing_player_one = 0;
+
+            if(game_mode == 2){
+                cursor1 = 0;
+                cursor1 = 0;
+                memset(temporal_buffer_player_two, 0, 20);
+                *writing_player_two = 1;
+            } else {
+                //*writing_player_two = 0;
+                return 1;
+            }
+        }
+    }
+
+    if(*writing_player_two){
+        int key = GetCharPressed();
+
+        while(key > 0){
+            if(key >= 32 && key <= 125 && cursor2 <19){
+                temporal_buffer_player_two[cursor2++] = (char)key;
+                temporal_buffer_player_two[cursor2] = '\0';
+            }
+            key = GetCharPressed();
+        }
+        if(IsKeyPressed(KEY_BACKSPACE) && cursor2 > 0){
+            cursor2--;
+            temporal_buffer_player_two[cursor2] = '\0';
+        }
+        if(IsKeyPressed(KEY_ENTER)){
+            *writing_player_two = 0;
+            cursor2 = 0;
+            return 1;
+        }
+    }
+    return 0;
 }
 
 int main(){
-    
-    //Graphics variables. DO NOT TOUCH
-    int cellsize = 60;
-    Grid g;
-
-    //Color darkBlue = {44, 44, 127, 255};
-    Grid_init(&g, cellsize);//inicializa la estructura grid
-
-    const int screenwidth = g.columns * g.cellsize;//ancho y alto de la pantalla, se calcula con la cantidad de filas/columans multiplicadas por el tamaño de cada una
-    const int screenheight = g.rows * g.cellsize;
-    char texto[50];
-
-    InitWindow(screenwidth+150, screenheight+150, "Snakes And Ladderrs"); // ventana de inicializacion
-    SetTargetFPS(60);
-
-    while(!WindowShouldClose()){//mantiene la ventana abierta
-        BeginDrawing();
-        ClearBackground(RAYWHITE);
-        
-        showGrid(&g, cellsize, screenwidth, screenheight, texto);
-
-        EndDrawing();
-    }
-
-    CloseWindow();//cierra la ventana 
-//-------------------
-
+    //Logic variables. do not touch.
     int game_on = 1;//control
     srand(time(NULL));
 
@@ -102,10 +152,120 @@ int main(){
     
     int num_dice_one = 0, player_position_one = 1, counter_dice_condition_one = 0;   
     int num_dice_two = 0, player_position_two = 1, counter_dice_condition_two = 0;     
-    int logic_board[101], display_board[101];
+    int logic_board[101];
     int board_size = sizeof(logic_board) / sizeof(logic_board[0]);
     int current_turn = 1;
+    
+    //Graphics variables. DO NOT TOUCH
+    int cellsize = 60;
+    Grid g;
+    //Color darkBlue = {44, 44, 127, 255};
+    Grid_init(&g, cellsize);//inicializa la estructura grid
 
+    const int screenwidth = g.columns * g.cellsize;//ancho y alto de la pantalla, se calcula con la cantidad de filas/columans multiplicadas por el tamaño de cada una
+    const int screenheight = g.rows * g.cellsize;
+    char text[50];
+
+    char temporal_buffer_player_one[20] = {0};
+    char temporal_buffer_player_two[20] = {0};
+    int writing_player_one = 1;
+    int writing_player_two = 0;
+    int names_done = 0;
+
+    initializeBoard(logic_board, board_size); //initialize the board.
+    cheekSpecialCell(logic_board);
+
+    InitWindow(screenwidth+150, screenheight+150, "Snakes And Ladders"); // ventana de inicializacion
+    Texture2D dicetextures[6]; //inicializa las imagenes del dado
+    dicetextures[0] = LoadTexture("images/dice1.png");
+    dicetextures[1] = LoadTexture("images/dice2.png");
+    dicetextures[2] = LoadTexture("images/dice3.png");
+    dicetextures[3] = LoadTexture("images/dice4.png");
+    dicetextures[4] = LoadTexture("images/dice5.png");
+    dicetextures[5] = LoadTexture("images/dice6.png");
+    SetTargetFPS(60);
+
+    game_mode = 1;//pruebas
+
+    while(!WindowShouldClose()){
+        int dice_value = 0;
+        if (IsKeyPressed(KEY_SPACE)){
+            dice_value = rollDiceGraphic();//toma el valor del dado
+            }
+            BeginDrawing();
+            ClearBackground(RAYWHITE);
+        
+        showGrid(&g, cellsize, screenwidth, screenheight, text);
+        DrawDice(dice_value, dicetextures); //dibuja el dado
+        EndDrawing();
+
+        if(names_done == 0){
+            names_done = capturePlayerName(temporal_buffer_player_one, temporal_buffer_player_two, &writing_player_one, &writing_player_two, game_mode);
+
+            BeginDrawing();
+            ClearBackground(RAYWHITE);
+            if(writing_player_one){
+                DrawText("Player 1 name: ", 50, 50, 20, RED);
+                DrawText(temporal_buffer_player_one, 50, 100, 20, DARKBLUE);
+            }
+            if(writing_player_two){
+                DrawText("Player 2 name: ", 50, 50, 20, RED);
+                DrawText(temporal_buffer_player_two, 50, 100, 20, DARKBLUE);
+            }
+            EndDrawing();
+            continue;
+        }
+
+        if(names_done == 1){
+            if(game_mode == 1 || game_mode == 3){
+                setName(&name, game_mode, temporal_buffer_player_one, NULL);
+            }
+            if(game_mode == 2){
+                setName(&name, game_mode, temporal_buffer_player_one, temporal_buffer_player_two);
+            }
+            names_done = 2;
+        }
+
+        BeginDrawing();
+        ClearBackground(RAYWHITE);
+        switch (game_mode){//aun no esta modificado
+        case 1:
+            DrawText(name.player_one_name, 70, 70,20, PURPLE);//printf("%s.\n", name.player_one_name);
+            playerTurn(&g, cellsize, screenwidth, screenheight, text, logic_board, board_size, enable_dice, &num_dice_one, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on);
+            break;
+        case 2:
+            if(current_turn % 2 == 0){
+                DrawText(name.player_two_name, 70, 70,20, PURPLE);//printf("%s.\n", name.player_two_name);
+                playerTurn(&g, cellsize, screenwidth, screenheight, text, logic_board, board_size, enable_dice, &num_dice_two, &player_position_two, &counter_dice_condition_two, &current_turn, &game_on);
+            } else {
+                DrawText(name.player_one_name, 70, 70,20, PURPLE);//printf("%s.\n", name.player_one_name);
+                playerTurn(&g, cellsize, screenwidth, screenheight, text, logic_board, board_size, enable_dice, &num_dice_one, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on);
+            }
+            break;
+        case 3:
+            if(current_turn % 2 == 0){
+                enable_dice = 0;
+                DrawText(name.player_two_name, 70, 70,20, PURPLE);//printf("%s.\n", name.player_two_name);
+                playerTurn(&g, cellsize, screenwidth, screenheight, text, logic_board, board_size, enable_dice, &num_dice_two, &player_position_two, &counter_dice_condition_two, &current_turn, &game_on);
+            } else {
+                enable_dice = 1;
+                DrawText(name.player_one_name, 70, 70,20, PURPLE);//printf("%s.\n", name.player_one_name);
+                playerTurn(&g, cellsize, screenwidth, screenheight, text, logic_board, board_size, enable_dice, &num_dice_one, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on);
+            } 
+            break;
+        }
+        //playerTurn(&g, cellsize, screenwidth, screenheight, text, logic_board, board_size, enable_dice, &num_dice_one, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on);
+        EndDrawing();
+        if(game_on){
+            current_turn += 1;
+        }
+    }
+
+    CloseWindow();//cierra la ventana 
+    return 0;
+}
+//-------------------
+/*
     printf("Snakes and ladders.\n");
     printf("Welcome!\n\n");
 
@@ -173,4 +333,4 @@ int main(){
     loadGame(&name, game_mode, &player_position_one, &player_position_two, &current_turn, &counter_dice_condition_one, &counter_dice_condition_two, &game_mode);
 
     return 0;
-}
+}*/

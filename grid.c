@@ -11,7 +11,7 @@ void Grid_init(Grid *g, int cellsize){//Initializa the matrix
             g->grid[i][j] = 0;
 }
 
-void showGrid(Grid *g, int cellsize, const int screenwidth, const int screenheight, char texto[]){
+void showGrid(Grid *g, int cellsize, const int screenwidth, const int screenheight, char text[]){
     for (int i = 0; i < g->columns; i++) {//Draw the columns
         int x = i * g->cellsize;
         DrawLine(x, 0, x, screenheight, BLACK);
@@ -28,9 +28,13 @@ void showGrid(Grid *g, int cellsize, const int screenwidth, const int screenheig
         for (int j = 0; j < g->columns; j++) {
             int x = j * g->cellsize;
             int y = i * g->cellsize;
-            sprintf(texto, "%d", counter);
-            DrawText(texto, x + 20, screenheight-(i*g->cellsize) -40, 20, BLACK);
+            sprintf(text, "%d", counter);
+            DrawText(text, x + 20, screenheight-(i*g->cellsize) -40, 20, BLACK);
             counter++;
         }
     }
+}
+
+void DrawDice(int dice_value, Texture2D dicetextures[]){
+    DrawTexture(dicetextures[dice_value - 1], 650, 50, WHITE);
 }
