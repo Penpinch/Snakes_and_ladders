@@ -65,6 +65,7 @@ void setName(struct PlayerName *name, int game_mode, const char *input_player_on
             name -> player_two_name[sizeof(name -> player_two_name) - 1] = '\0';
             break;
     }
+
     /*
     switch (game_mode){
         case 1:
