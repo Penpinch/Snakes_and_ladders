@@ -19,7 +19,7 @@ int rollDice(char roll_dice){
 }
 
 int rollDiceGraphic(){
-    return 1 + rand() %6;
+    return 1 + rand() % 6;
 }
 
 int moveToken(int player_position, int num_dice){
@@ -65,30 +65,6 @@ void setName(struct PlayerName *name, int game_mode, const char *input_player_on
             name -> player_two_name[sizeof(name -> player_two_name) - 1] = '\0';
             break;
     }
-
-    /*
-    switch (game_mode){
-        case 1:
-            printf("Player 1: \n");
-            fgets(name -> player_one_name, sizeof(name -> player_one_name), stdin);
-            name -> player_one_name[strcspn(name -> player_one_name, "\n")] = '\0';
-            break;
-        case 2:
-            printf("Player 1: \n");
-            fgets(name -> player_one_name, sizeof(name -> player_one_name), stdin);
-            name -> player_one_name[strcspn(name -> player_one_name, "\n")] = '\0';
-            printf("Player 2: \n");
-            fgets(name -> player_two_name, sizeof(name -> player_two_name), stdin);
-            name -> player_two_name[strcspn(name -> player_two_name, "\n")] = '\0';
-            break;
-        case 3:
-            printf("Player 1: \n");
-            fgets(name -> player_one_name, sizeof(name -> player_one_name), stdin);
-            name -> player_one_name[strcspn(name -> player_one_name, "\n")] = '\0';
-            break;
-        default:
-            break;
-    }*/
 }
 
 void saveGame(const struct PlayerName *name, int player_position_one, int player_position_two, int current_turn, int counter_dice_condition_one, int counter_dice_condition_two, int game_mode){

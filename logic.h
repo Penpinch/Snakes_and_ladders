@@ -17,7 +17,7 @@ int moveToken(int player_position, int num_dice);
 void cheekSpecialCell(int board[]);
 
 void setName(struct PlayerName *name, int game_mode, const char *input_player_one, const char *input_player_two);
-
+//las 2 siguientes funciones debemos adaptarlas a raylib.
 void saveGame(const struct PlayerName *name, int player_position_one, int player_position_two, int current_turn, int counter_dice_condition_one, int counter_dice_condition_two, int game_mode);
 
 void loadGame(const struct PlayerName *name, int game_load, int *player_position_one, int *player_position_two, int *current_turn, int *counter_dice_condition_one, int *counter_dice_condition_two, int *game_mode);

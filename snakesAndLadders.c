@@ -9,7 +9,6 @@
 //gcc snakesAndLadders.c logic.c grid.c -o q -lraylib -lopengl32 -lgdi32 -mconsole
 
 void playerTurn(
-    Grid *g, int cellsize, int screenwidth,int screenheight, char text[],  
     int logic_board[], int board_size, int enable_dice, int *num_dice, 
     int *player_position, int *counter_dice_condition, int *curren_turn, int *game_on){
     //char roll_dice = 'n';
@@ -183,13 +182,8 @@ int main(){
     cheekSpecialCell(logic_board);
     
     //Graphics variables. DO NOT TOUCH
-    int cellsize = 70;//probably we wont even use these 3
-    Grid g;
-    Grid_init(&g, cellsize);//inicializa la estructura grid
-
     const int screenwidth = 1000;
     const int screenheight = 1000;
-    char text[50];
 
     char temporal_buffer_player_one[20] = {0};
     char temporal_buffer_player_two[20] = {0};
@@ -199,6 +193,8 @@ int main(){
 
     InitWindow(screenwidth, screenheight, "Snakes And Ladders"); // ventana de inicializacion
     SetTargetFPS(60);
+    Texture2D grid_image;
+    grid_image = LoadTexture("Grid_image.png");
     Texture2D dicetextures[6]; //inicializa las imagenes del dado
     dicetextures[0] = LoadTexture("Dice_faces/DiceFace1.png");
     dicetextures[1] = LoadTexture("Dice_faces/DiceFace2.png");
@@ -247,7 +243,7 @@ int main(){
         BeginDrawing();
         ClearBackground(BLUE);
 
-        showGrid(&g, cellsize, screenwidth, screenheight, text);//probably we wont use this
+        DrawTexture(grid_image, 0, 0, WHITE);
         DrawText("Press space key to roll the dice.", 250, 40, 30, BLACK);
         DrawDice(dice_value, dicetextures); //dibuja el dado
         DrawText(name.player_one_name, 300, 760, 30, BLACK); 
@@ -258,16 +254,16 @@ int main(){
         switch (game_mode){
             case 1:
                 if(dice_was_rolled == 1){
-                    playerTurn(&g, cellsize, screenwidth, screenheight, text, logic_board, board_size, enable_dice, &dice_value, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on);
+                    playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on);
                     dice_was_rolled = 0;
                 }
                 break;
             case 2:
                 if(dice_was_rolled == 1){
                     if(current_turn % 2 == 0){
-                        playerTurn(&g, cellsize, screenwidth, screenheight, text, logic_board, board_size, enable_dice, &dice_value, &player_position_two, &counter_dice_condition_two, &current_turn, &game_on);
+                        playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_two, &counter_dice_condition_two, &current_turn, &game_on);
                     } else {
-                        playerTurn(&g, cellsize, screenwidth, screenheight, text, logic_board, board_size, enable_dice, &dice_value, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on);
+                        playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on);
                     }
                     dice_was_rolled = 0;
                 }
@@ -276,21 +272,16 @@ int main(){
                 if(dice_was_rolled == 1){
                     if(current_turn % 2 == 0){
                         enable_dice = 0;
-                        //playerTurn(&g, cellsize, screenwidth, screenheight, text, logic_board, board_size, enable_dice, &dice_value, &player_position_two, &counter_dice_condition_two, &current_turn, &game_on);
+                        //playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_two, &counter_dice_condition_two, &current_turn, &game_on);
                     } else {
                         enable_dice = 1;
-                        //playerTurn(&g, cellsize, screenwidth, screenheight, text, logic_board, board_size, enable_dice, &dice_value, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on);
+                        //playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on);
                     } 
                 }
                 break;
             }
-        //maybe do this inside the playerTurn function
-        /*if(game_on){
-            current_turn += 1;
-        }*/
         EndDrawing();
     }
-    //WaitTime(5.0);
     CloseWindow();
     return 0;
 }
