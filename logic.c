@@ -42,12 +42,12 @@ void cheekSpecialCell(int board[]){
     board[99] = 59;
     board[95] = 76;
     board[92] = 73;
-    board[84] = 64;
-    board[68] = 34;
-    board[67] = 25;
-    board[45] = 37;
+    board[84] = 46;
+    board[68] = 27;
+    board[62] = 24;
+    board[32] = 5;
     board[28] = 8;
-    board[20] = 2;
+    board[11] = 2;
 }
 
 void setName(struct PlayerName *name, int game_mode, const char *input_player_one, const char *input_player_two){

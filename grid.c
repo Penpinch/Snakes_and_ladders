@@ -44,5 +44,5 @@ void DrawDice(int dice_value, Texture2D dicetextures[]){
         return;
     }
 
-    DrawTexture(dicetextures[dice_value - 1], 400, 700, WHITE);
+    DrawTexture(dicetextures[dice_value - 1], 50, 750, WHITE);
 }
