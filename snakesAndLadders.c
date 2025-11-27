@@ -29,9 +29,9 @@ void playerTurn(//Esta función tiene todo el apartado logico de los turnos, mov
         *player_position = 100;
         *winner = *curren_turn % 2;
         if (*winner == 0){
-            winner = 2;
+            *winner = 2;
         }else{
-            winner = 1;
+            *winner = 1;
         }
         *game_on = 0;
         return;
@@ -298,6 +298,7 @@ int main(){
             }
         EndDrawing();
 
+        //Agregar botones para usar esto
         BeginDrawing();//Recibe donde guardar la partida.
             ClearBackground(PURPLE);
             DrawText("Where to save? ", 500, 500, 30, BLACK);
