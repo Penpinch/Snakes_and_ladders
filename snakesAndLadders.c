@@ -8,22 +8,35 @@
 
 //gcc snakesAndLadders.c logic.c grid.c -o q -lraylib -lopengl32 -lgdi32 -mconsole
 
-void playerTurn(
+void playerTurn(//Esta función tiene todo el apartado logico de los turnos, mover casilla, serpientes, escaleras, etc 
     int logic_board[], int board_size, int enable_dice, int *num_dice, 
-    int *player_position, int *counter_dice_condition, int *curren_turn, int *game_on){
+    int *player_position, int *counter_dice_condition, int *curren_turn, int *game_on, int *winner){
     //char roll_dice = 'n';
 
     *player_position = moveToken(*player_position, *num_dice);
     printf("%d", *player_position);
 
     //Victory check
-    if(*player_position >= 100){
+    /*if(*player_position >= 100){
         *player_position = 100;
         DrawText("You won!", 500, 500, 30, RED);
         WaitTime(5.0);
         *game_on = 0;
+        return;    
+    }*/
+
+    if (*player_position >=100){
+        *player_position = 100;
+        *winner = *curren_turn % 2;
+        if (*winner == 0){
+            winner = 2;
+        }else{
+            winner = 1;
+        }
+        *game_on = 0;
         return;
     }
+
     *player_position = logic_board[*player_position];
 
     //cheek if extra turn or restart
@@ -69,7 +82,7 @@ void playerTurn(
     //Show the player position.
     printf("Last position: %d\n", *player_position);
     *player_position = moveToken(*player_position, *num_dice);
-    
+
     //Victory check
     if(*player_position >= 100){
         *player_position = 100;
@@ -104,10 +117,10 @@ void playerTurn(
     */
 }
 
-int capturePlayerName(
+int capturePlayerName(//Esta funcion captura el nombre del los jugadores.
     char *temporal_buffer_player_one, char *temporal_buffer_player_two, 
     int *writing_player_one, int *writing_player_two, int game_mode){
-    
+
     static int cursor1 = 0;
     static int cursor2 = 0;
 
@@ -165,11 +178,11 @@ int capturePlayerName(
 }
 
 int main(){
-    //Logic variables. do not touch.
+    //Logic variables. DO NOT TOUCH.
     srand(time(NULL));
 
     int game_on = 1;//control
-    int game_mode = 2, enable_dice = 1, game_load; //pruebas
+    int game_mode = 2, enable_dice = 1, game_load, save_option; //pruebas
     struct PlayerName name = {"", "Computer friend"};
 
     int player_position_one = 1, counter_dice_condition_one = 0;   
@@ -177,9 +190,10 @@ int main(){
     int logic_board[101];
     int board_size = sizeof(logic_board) / sizeof(logic_board[0]);
     int current_turn = 1, dice_was_rolled = 0, dice_value = 0;
+    int winner;
 
-    initializeBoard(logic_board, board_size); 
-    cheekSpecialCell(logic_board);
+    initializeBoard(logic_board, board_size);//Inicializa el tablero lógico.
+    cheekSpecialCell(logic_board);//Re-asigna las serpientes y escaleras en el tablero lógico.
     
     //Graphics variables. DO NOT TOUCH
     const int screenwidth = 1000;
@@ -191,12 +205,12 @@ int main(){
     int writing_player_two = 0;
     int names_done = 0;
 
-    InitWindow(screenwidth, screenheight, "Snakes And Ladders"); // ventana de inicializacion
-    SetTargetFPS(60);
+    InitWindow(screenwidth, screenheight, "Snakes And Ladders"); // ventana de inicialización de Raylib.
+    SetTargetFPS(60);//Fotogramas por segundo.
     Texture2D grid_image;
     grid_image = LoadTexture("Grid_image.png");
-    Texture2D dicetextures[6]; //inicializa las imagenes del dado
-    dicetextures[0] = LoadTexture("Dice_faces/DiceFace1.png");
+    Texture2D dicetextures[6]; //Inicializa las imagenes del dado.
+    dicetextures[0] = LoadTexture("Dice_faces/DiceFace1.png");//Carga las imagenes del dado.
     dicetextures[1] = LoadTexture("Dice_faces/DiceFace2.png");
     dicetextures[2] = LoadTexture("Dice_faces/DiceFace3.png");
     dicetextures[3] = LoadTexture("Dice_faces/DiceFace4.png");
@@ -207,7 +221,7 @@ int main(){
     temporal_buffer_player_two[0] = '\0';
     while(!WindowShouldClose()){
 
-        if(names_done == 0){
+        if(names_done == 0){//Captura de nombres.
             int captura = capturePlayerName(temporal_buffer_player_one, temporal_buffer_player_two, &writing_player_one, &writing_player_two, game_mode);
 
             BeginDrawing();
@@ -226,18 +240,20 @@ int main(){
             }
             continue;
         }
-        
-        if(names_done == 1){
+
+        if(names_done == 1){//Si aún no los captura, lo hace.
             names_done = 2;
             const char *p2 = (game_mode == 2) ? temporal_buffer_player_two : "";
             setName(&name, game_mode, temporal_buffer_player_one, p2);
         }
 
-        if(IsKeyPressed(KEY_SPACE) && enable_dice == 1 && dice_was_rolled == 0){
-            dice_value = rollDiceGraphic();//toma el valor del dado
-            dice_was_rolled = 1;
-            printf("sapce presed -> dice value = %d\n", dice_value);
-            fflush(stdout);
+        if (game_on == 1 && names_done == 2){//Detecta si se presiona la barra espaciadora para tirar el dado.
+            if(IsKeyPressed(KEY_SPACE) && enable_dice == 1 && dice_was_rolled == 0){
+                dice_value = rollDiceGraphic();
+                dice_was_rolled = 1;
+                printf("sapce presed -> dice value = %d\n", dice_value);
+                fflush(stdout);
+            }
         }
 
         BeginDrawing();
@@ -251,19 +267,19 @@ int main(){
             DrawText(name.player_two_name, 300, 860, 30, BLACK);
         }
 
-        switch (game_mode){
+        switch (game_mode){//Tres modos de jjuego.
             case 1:
                 if(dice_was_rolled == 1){
-                    playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on);
+                    playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on, &winner);
                     dice_was_rolled = 0;
                 }
                 break;
             case 2:
                 if(dice_was_rolled == 1){
                     if(current_turn % 2 == 0){
-                        playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_two, &counter_dice_condition_two, &current_turn, &game_on);
+                        playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_two, &counter_dice_condition_two, &current_turn, &game_on, &winner);
                     } else {
-                        playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on);
+                        playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on, &winner);
                     }
                     dice_was_rolled = 0;
                 }
@@ -272,16 +288,65 @@ int main(){
                 if(dice_was_rolled == 1){
                     if(current_turn % 2 == 0){
                         enable_dice = 0;
-                        //playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_two, &counter_dice_condition_two, &current_turn, &game_on);
+                        //playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_two, &counter_dice_condition_two, &current_turn, &game_on, &winner);
                     } else {
                         enable_dice = 1;
-                        //playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on);
+                        //playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on, &winner);
                     } 
                 }
                 break;
             }
         EndDrawing();
+
+        BeginDrawing();//Recibe donde guardar la partida.
+            ClearBackground(PURPLE);
+            DrawText("Where to save? ", 500, 500, 30, BLACK);
+            DrawText("1. Save 1", 500, 550, 30, BLACK);
+            DrawText("2. Save 2", 500, 600, 30, BLACK);
+            DrawText("3. Save 3", 500, 650, 30, BLACK);
+            DrawText("4. Save 4", 500, 700, 30, BLACK);
+            
+            if(IsKeyPressed(KEY_ONE)){
+                save_option = 1;
+                break;
+            } else if(IsKeyPressed(KEY_TWO)){
+                save_option = 2;
+                break;
+            } else if(IsKeyPressed(KEY_THREE)){
+                save_option = 3;
+                break;
+            } else if(IsKeyPressed(KEY_FOUR)){
+                save_option = 4;
+                break;
+            }
+        EndDrawing();
+        
+        //Esto va en el menu q va a hacer Ale
+        BeginDrawing();//Recibe que partida cargar.
+            ClearBackground(PURPLE);
+            DrawText("Game to load? ", 500, 500, 30, BLACK);
+            DrawText("1. Load game 1", 500, 550, 30, BLACK);
+            DrawText("2. Load game 2", 500, 600, 30, BLACK);
+            DrawText("3. Load game 3", 500, 650, 30, BLACK);
+            DrawText("4. Load game 4", 500, 700, 30, BLACK);
+            if(IsKeyPressed(KEY_ONE)){
+                game_load = 1;
+                break;
+            } else if(IsKeyPressed(KEY_TWO)){
+                game_load = 2;
+                break;
+            } else if(IsKeyPressed(KEY_THREE)){
+                game_load = 3;
+                break;
+            } else if(IsKeyPressed(KEY_FOUR)){
+                game_load = 4;
+                break;
+            }
+        EndDrawing();
     }
+    saveGame(&name, save_option, player_position_one, player_position_two, current_turn, counter_dice_condition_one, counter_dice_condition_two, game_mode);
+    loadGame(&name, game_load, &player_position_one, &player_position_two, &current_turn, &counter_dice_condition_one, &counter_dice_condition_two, &game_mode);
+
     CloseWindow();
     return 0;
 }
@@ -296,9 +361,8 @@ int main(){
     printf("3. against the computer. \n");
     scanf("%d", &game_mode);
     while(getchar() != '\n');
-
-    saveGame(&name, player_position_one, player_position_two, current_turn, counter_dice_condition_one, counter_dice_condition_two, game_mode);
-    printf("Game to load: ");
-    scanf("%d", &game_load);
-    loadGame(&name, game_mode, &player_position_one, &player_position_two, &current_turn, &counter_dice_condition_one, &counter_dice_condition_two, &game_mode);
 */
+    //saveGame(&name, save_option, player_position_one, player_position_two, current_turn, counter_dice_condition_one, counter_dice_condition_two, game_mode);
+    //printf("Game to load: ");
+    //scanf("%d", &game_load);
+    //loadGame(&name, game_mode, &player_position_one, &player_position_two, &current_turn, &counter_dice_condition_one, &counter_dice_condition_two, &game_mode);

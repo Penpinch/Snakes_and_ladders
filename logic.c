@@ -67,7 +67,24 @@ void setName(struct PlayerName *name, int game_mode, const char *input_player_on
     }
 }
 
-void saveGame(const struct PlayerName *name, int player_position_one, int player_position_two, int current_turn, int counter_dice_condition_one, int counter_dice_condition_two, int game_mode){
+void saveGame(const struct PlayerName *name, int save_option, int player_position_one, int player_position_two, int current_turn, int counter_dice_condition_one, int counter_dice_condition_two, int game_mode){
+    char name_files[15];
+    sprintf(name_files, "Game %d.txt", save_option);
+
+    FILE *file = fopen(name_files, "w");
+
+    if(file != NULL){
+        if(game_mode == 1){
+            //Game mode, Player name, Player position
+            fprintf(file, "%d %s %d", game_mode, name -> player_one_name, player_position_one);
+        } else {
+            //Game mode, Current turn, Player one name, Player position one, Dice counter one, Player two name, Player position two, Dice counter two
+            fprintf(file, "%d %d %s %d %d %s %d %d", game_mode, current_turn, name -> player_one_name, player_position_one, counter_dice_condition_one, name -> player_two_name, player_position_two, counter_dice_condition_two);
+        }
+        fclose(file);
+    }
+
+    /*    
     int game_option;
     FILE *game_1;
     FILE *game_2;
@@ -79,10 +96,8 @@ void saveGame(const struct PlayerName *name, int player_position_one, int player
     game_3 = fopen("Game 3.txt", "w");
     game_4 = fopen("Game 4.txt", "w");
 
-    printf("Where to save?: \n");
-    scanf("%d", &game_option);
-
     if(game_1 != NULL && game_2 != NULL && game_3 != NULL && game_4 != NULL){
+
         switch (game_option){
             case 1:
                 if(game_mode == 1){
@@ -126,6 +141,7 @@ void saveGame(const struct PlayerName *name, int player_position_one, int player
     } else {
         printf("Error opening file.");
     }
+*/
 }
 
 void loadGame(const struct PlayerName *name, int game_load, int *player_position_one, int *player_position_two, int *current_turn, int *counter_dice_condition_one, int *counter_dice_condition_two, int *game_mode){
