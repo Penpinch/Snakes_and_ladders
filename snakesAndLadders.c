@@ -11,21 +11,11 @@
 void playerTurn(//Esta función tiene todo el apartado logico de los turnos, mover casilla, serpientes, escaleras, etc 
     int logic_board[], int board_size, int enable_dice, int *num_dice, 
     int *player_position, int *counter_dice_condition, int *curren_turn, int *game_on, int *winner){
-    //char roll_dice = 'n';
 
     *player_position = moveToken(*player_position, *num_dice);
-    printf("%d", *player_position);
+    printf("%d\n", *player_position);
 
-    //Victory check
-    /*if(*player_position >= 100){
-        *player_position = 100;
-        DrawText("You won!", 500, 500, 30, RED);
-        WaitTime(5.0);
-        *game_on = 0;
-        return;    
-    }*/
-
-    if (*player_position >=100){
+    if(*player_position >= 100){
         *player_position = 100;
         *winner = *curren_turn % 2;
         if (*winner == 0){
@@ -56,65 +46,6 @@ void playerTurn(//Esta función tiene todo el apartado logico de los turnos, mov
     }
 
     printf("New position: %d\n\n", *player_position);
-
-    /*if(enable_dice == 1){
-        roll_dice = GetKeyPressed();           
-    } else {
-        roll_dice = 'y';
-    }
-*/
-    
-/*
-    //Rolling the dice.
-    if(enable_dice == 1){
-        printf("Roll the dice('y' for yes)?: ");
-        scanf(" %c", &roll_dice);            
-    } else {
-        roll_dice = 'y';
-    }
-
-    //clear the screen.
-    system("cls");//fputs("\033[2J\033[H", stdout);
-
-    *num_dice = rollDice(roll_dice);
-    printf("Dice result: %d\n", *num_dice);
-
-    //Show the player position.
-    printf("Last position: %d\n", *player_position);
-    *player_position = moveToken(*player_position, *num_dice);
-
-    //Victory check
-    if(*player_position >= 100){
-        *player_position = 100;
-
-        printf("%d\n", *player_position);
-        printf("You won!\n");
-        system("pause");
-        *game_on = 0;
-        return;
-    }
-    *player_position = logic_board[*player_position];
-
-    //cheek if extra turn or restart
-    if(*num_dice == 6){
-        *counter_dice_condition += 1;
-        (*counter_dice_condition < 2) ? *curren_turn -= 1 : (void)0;
-        printf("contador valor: %d\n", *counter_dice_condition);
-        if(*counter_dice_condition == 3){
-            *counter_dice_condition = 0;
-            *player_position = logic_board[1];
-        }
-    } else {
-        *counter_dice_condition = 0;
-        printf("contador valor: %d\n", *counter_dice_condition);
-    }
-
-    printf("New position: %d\n", *player_position);
-
-    //upload board
-    //showBoard(display_board, board_size);
-    system("pause");
-    */
 }
 
 int capturePlayerName(//Esta funcion captura el nombre del los jugadores.
@@ -182,14 +113,14 @@ int main(){
     srand(time(NULL));
 
     int game_on = 1;//control
-    int game_mode = 2, enable_dice = 1, game_load, save_option; //pruebas
+    int game_mode = 3, enable_dice = 1, game_load, save_option; //pruebas
     struct PlayerName name = {"", "Computer friend"};
 
     int player_position_one = 1, counter_dice_condition_one = 0;   
     int player_position_two = 1, counter_dice_condition_two = 0;     
     int logic_board[101];
     int board_size = sizeof(logic_board) / sizeof(logic_board[0]);
-    int current_turn = 1, dice_was_rolled = 0, dice_value = 0;
+    int current_turn = 5, dice_was_rolled = 0, dice_value = 0;
     int winner;
 
     initializeBoard(logic_board, board_size);//Inicializa el tablero lógico.
@@ -201,6 +132,7 @@ int main(){
 
     char temporal_buffer_player_one[20] = {0};
     char temporal_buffer_player_two[20] = {0};
+    char winner_output[40];
     int writing_player_one = 1;
     int writing_player_two = 0;
     int names_done = 0;
@@ -247,59 +179,83 @@ int main(){
             setName(&name, game_mode, temporal_buffer_player_one, p2);
         }
 
-        if (game_on == 1 && names_done == 2){//Detecta si se presiona la barra espaciadora para tirar el dado.
-            if(IsKeyPressed(KEY_SPACE) && enable_dice == 1 && dice_was_rolled == 0){
-                dice_value = rollDiceGraphic();
+        if(game_on == 1 && names_done == 2){//Detecta si se presiona la barra espaciadora para tirar el dado.
+            if(IsKeyPressed(KEY_SPACE) && enable_dice == 0 && dice_was_rolled == 0){
+                dice_value = rollDice();
                 dice_was_rolled = 1;
                 printf("sapce presed -> dice value = %d\n", dice_value);
+                fflush(stdout);
+            } else if(enable_dice == 1 && dice_was_rolled == 0){
+                dice_value = rollDice();
+                dice_was_rolled = 1;
+                printf(" computer -> dice value = %d\n", dice_value);
                 fflush(stdout);
             }
         }
 
         BeginDrawing();
-        ClearBackground(BLUE);
 
-        DrawTexture(grid_image, 0, 0, WHITE);
-        DrawText("Press space key to roll the dice.", 250, 40, 30, BLACK);
-        DrawDice(dice_value, dicetextures); //dibuja el dado
-        DrawText(name.player_one_name, 300, 760, 30, BLACK); 
-        if(game_mode != 1){
-            DrawText(name.player_two_name, 300, 860, 30, BLACK);
-        }
+        if(game_on == 1){
+            ClearBackground(BLUE);
+            DrawTexture(grid_image, 0, 0, WHITE);
+            DrawText("Press space key to roll the dice.", 250, 40, 30, BLACK);
+            DrawDice(dice_value, dicetextures); //dibuja el dado
+            DrawText(name.player_one_name, 300, 760, 30, BLACK); 
+            if(game_mode != 1){
+                DrawText(name.player_two_name, 300, 860, 30, BLACK);
+            }
 
-        switch (game_mode){//Tres modos de jjuego.
-            case 1:
-                if(dice_was_rolled == 1){
-                    playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on, &winner);
-                    dice_was_rolled = 0;
-                }
-                break;
-            case 2:
-                if(dice_was_rolled == 1){
-                    if(current_turn % 2 == 0){
-                        playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_two, &counter_dice_condition_two, &current_turn, &game_on, &winner);
-                    } else {
+            switch(game_mode){//Tres modos de jjuego.
+                case 1:
+                    if(dice_was_rolled == 1){
                         playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on, &winner);
+                        dice_was_rolled = 0;
                     }
-                    dice_was_rolled = 0;
-                }
-                break;
-            case 3:
-                if(dice_was_rolled == 1){
-                    if(current_turn % 2 == 0){
-                        enable_dice = 0;
-                        //playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_two, &counter_dice_condition_two, &current_turn, &game_on, &winner);
-                    } else {
-                        enable_dice = 1;
-                        //playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on, &winner);
-                    } 
-                }
+                    break;
+                case 2:
+                    if(dice_was_rolled == 1){
+                        if(current_turn % 2 == 0){
+                            playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_two, &counter_dice_condition_two, &current_turn, &game_on, &winner);
+                        } else {
+                            playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on, &winner);
+                        }
+                        dice_was_rolled = 0;
+                    }
+                    break;
+                case 3:
+                    if(dice_was_rolled == 1){
+                        if(current_turn % 2 == 0){
+                            enable_dice = 0;
+                            playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_two, &counter_dice_condition_two, &current_turn, &game_on, &winner);
+                        } else {
+                            enable_dice = 1;
+                            playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on, &winner);
+                        }
+                        dice_was_rolled = 0;
+                    }
+                    break;
+            }
+        } else if(game_on == 0){
+            ClearBackground(LIGHTGRAY);  
+            DrawText("Press w to exit.", 500, 200, 50, BLUE);
+
+            if(winner == 2){
+                sprintf(winner_output, "Player %s wins!", name.player_two_name);
+                DrawText(winner_output, 300, 500, 50, BLUE);
+            } else {
+                sprintf(winner_output, "Player %s wins!", name.player_one_name);
+                DrawText(winner_output, 300, 500, 50, BLUE);
+            }
+
+            if(IsKeyPressed(KEY_W)){
                 break;
             }
+        }
+
         EndDrawing();
 
         //Agregar botones para usar esto
-        BeginDrawing();//Recibe donde guardar la partida.
+/*        BeginDrawing();//Recibe donde guardar la partida.
             ClearBackground(PURPLE);
             DrawText("Where to save? ", 500, 500, 30, BLACK);
             DrawText("1. Save 1", 500, 550, 30, BLACK);
@@ -344,26 +300,11 @@ int main(){
                 break;
             }
         EndDrawing();
+    */
     }
-    saveGame(&name, save_option, player_position_one, player_position_two, current_turn, counter_dice_condition_one, counter_dice_condition_two, game_mode);
-    loadGame(&name, game_load, &player_position_one, &player_position_two, &current_turn, &counter_dice_condition_one, &counter_dice_condition_two, &game_mode);
+    //saveGame(&name, save_option, player_position_one, player_position_two, current_turn, counter_dice_condition_one, counter_dice_condition_two, game_mode);
+    //loadGame(&name, game_load, &player_position_one, &player_position_two, &current_turn, &counter_dice_condition_one, &counter_dice_condition_two, &game_mode);
 
     CloseWindow();
     return 0;
 }
-
-/*
-    printf("Snakes and ladders.\n");
-    printf("Welcome!\n\n");
-
-    printf("Game mode: \n");
-    printf("1. practice.\n");
-    printf("2. 2 players.\n");
-    printf("3. against the computer. \n");
-    scanf("%d", &game_mode);
-    while(getchar() != '\n');
-*/
-    //saveGame(&name, save_option, player_position_one, player_position_two, current_turn, counter_dice_condition_one, counter_dice_condition_two, game_mode);
-    //printf("Game to load: ");
-    //scanf("%d", &game_load);
-    //loadGame(&name, game_mode, &player_position_one, &player_position_two, &current_turn, &counter_dice_condition_one, &counter_dice_condition_two, &game_mode);
