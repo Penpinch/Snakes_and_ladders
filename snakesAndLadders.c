@@ -6,7 +6,7 @@
 # include <string.h>
 # include "grid.h" 
 
-//gcc snakesAndLadders.c logic.c grid.c -o q -lraylib -lopengl32 -lgdi32 -mconsole
+//gcc snakesAndLadders.c logic.c grid.c -o q -lraylib -lopengl32 -lgdi32 -lwinmm -mconsole
 
 void playerTurn(//Esta función tiene todo el apartado logico de los turnos, mover casilla, serpientes, escaleras, etc 
     int logic_board[], int board_size, int enable_dice, int *num_dice, 
@@ -31,6 +31,7 @@ void playerTurn(//Esta función tiene todo el apartado logico de los turnos, mov
 
     //cheek if extra turn or restart
     if(*num_dice == 6){
+        *curren_turn += 1;
         *counter_dice_condition += 1;
         (*counter_dice_condition < 2) ? *curren_turn -= 1 : (void)0;
 
@@ -108,12 +109,24 @@ int capturePlayerName(//Esta funcion captura el nombre del los jugadores.
     return 0;
 }
 
+void drawToken(){//Esta funcion dibuja las fichas
+    DrawCircle(228, 669, 14, RED);
+    
+/*    DrawTriangle(
+        (Vector2){230, 660}, 
+        (Vector2){220, 690},
+        (Vector2){240, 690}, 
+        PURPLE
+    );
+*/
+}
+
 int main(){
     //Logic variables. DO NOT TOUCH.
     srand(time(NULL));
 
     int game_on = 1;//control
-    int game_mode = 3, enable_dice = 1, game_load, save_option; //pruebas
+    int game_mode = 1, enable_dice = 0, game_load, save_option; //pruebas
     struct PlayerName name = {"", "Computer friend"};
 
     int player_position_one = 1, counter_dice_condition_one = 0;   
@@ -183,7 +196,7 @@ int main(){
             if(IsKeyPressed(KEY_SPACE) && enable_dice == 0 && dice_was_rolled == 0){
                 dice_value = rollDice();
                 dice_was_rolled = 1;
-                printf("sapce presed -> dice value = %d\n", dice_value);
+                printf("%d -> dice value = %d\n",current_turn ,dice_value);
                 fflush(stdout);
             } else if(enable_dice == 1 && dice_was_rolled == 0){
                 dice_value = rollDice();
@@ -199,13 +212,14 @@ int main(){
             ClearBackground(BLUE);
             DrawTexture(grid_image, 0, 0, WHITE);
             DrawText("Press space key to roll the dice.", 250, 40, 30, BLACK);
-            DrawDice(dice_value, dicetextures); //dibuja el dado
+            DrawDice(dice_value, dicetextures); //Dibuja el dado
             DrawText(name.player_one_name, 300, 760, 30, BLACK); 
+            drawToken();//Dibuja las fihcas
             if(game_mode != 1){
                 DrawText(name.player_two_name, 300, 860, 30, BLACK);
             }
 
-            switch(game_mode){//Tres modos de jjuego.
+            switch(game_mode){//Tres modos de juego.
                 case 1:
                     if(dice_was_rolled == 1){
                         playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on, &winner);
@@ -225,13 +239,14 @@ int main(){
                 case 3:
                     if(dice_was_rolled == 1){
                         if(current_turn % 2 == 0){
-                            enable_dice = 0;
                             playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_two, &counter_dice_condition_two, &current_turn, &game_on, &winner);
                         } else {
-                            enable_dice = 1;
                             playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on, &winner);
                         }
                         dice_was_rolled = 0;
+
+                        (current_turn % 2 != 0) ? WaitTime(3.0) : (void)0;
+                        enable_dice = (current_turn % 2 == 0) ? 1 : 0;
                     }
                     break;
             }
