@@ -5,8 +5,9 @@
 # include "logic.h"
 # include <string.h>
 # include "grid.h" 
+# include "menu.h"
 
-//gcc snakesAndLadders.c logic.c grid.c -o q -lraylib -lopengl32 -lgdi32 -lwinmm -mconsole
+//gcc snakesAndLadders.c logic.c grid.c menu.c -o q -lraylib -lopengl32 -lgdi32 -lwinmm -mconsole
 
 void playerTurn(//Esta función tiene todo el apartado logico de los turnos, mover casilla, serpientes, escaleras, etc 
     int logic_board[], int board_size, int enable_dice, int *num_dice, 
@@ -109,9 +110,41 @@ int capturePlayerName(//Esta funcion captura el nombre del los jugadores.
     return 0;
 }
 
-void drawToken(){//Esta funcion dibuja las fichas
-    DrawCircle(228, 669, 14, RED);
-    
+void drawToken(int *player_position, Color color){//Esta funcion dibuja las fichas.
+    /*tablero 600x600, 
+    borde negro 25, 
+    borde sup. 70, 
+    bode inf. 280, 
+    bode izq. 175, 
+    borde der. 175
+    casilla 57-59*/
+
+    /*
+    DrawCircle(217, 676, 14, RED);//Dentro de la casilla 1
+    DrawCircle(241, 676, 14, BLUE);//Dentro de la casilla 1
+    */
+
+    int indice = *player_position - 1;
+
+    int fila = indice / 10;
+    int invfila = 9 - fila;
+    int col = indice % 10;
+
+    int cell = 59;
+
+    int x = 200 + col * cell;
+    int y = 95 + invfila * cell;
+
+    DrawCircle(x + cell/4 + 15, y + 3 * (cell/4), 14, color);
+
+/*
+    DrawLine(200, 200, 258, 200, WHITE);//anchura  casillas aprox. 58 pixeles
+    DrawLine(265, 96, 265, 153, WHITE);//altura casillas
+
+    DrawLine(200, 300, 800, 300, WHITE);//anchura tablero
+    DrawLine(300, 96, 300, 696, WHITE);//altura tablero. 
+*/
+
 /*    DrawTriangle(
         (Vector2){230, 660}, 
         (Vector2){220, 690},
@@ -126,7 +159,7 @@ int main(){
     srand(time(NULL));
 
     int game_on = 1;//control
-    int game_mode = 1, enable_dice = 0, game_load, save_option; //pruebas
+    int game_mode = 0, enable_dice = 0, game_load, save_option; //pruebas
     struct PlayerName name = {"", "Computer friend"};
 
     int player_position_one = 1, counter_dice_condition_one = 0;   
@@ -134,7 +167,7 @@ int main(){
     int logic_board[101];
     int board_size = sizeof(logic_board) / sizeof(logic_board[0]);
     int current_turn = 5, dice_was_rolled = 0, dice_value = 0;
-    int winner;
+    int winner = 0;
 
     initializeBoard(logic_board, board_size);//Inicializa el tablero lógico.
     cheekSpecialCell(logic_board);//Re-asigna las serpientes y escaleras en el tablero lógico.
@@ -164,110 +197,135 @@ int main(){
 
     temporal_buffer_player_one[0] = '\0';
     temporal_buffer_player_two[0] = '\0';
+    Screen actualScreen = MENU_PRINCIPAL; 
     while(!WindowShouldClose()){
-
-        if(names_done == 0){//Captura de nombres.
-            int captura = capturePlayerName(temporal_buffer_player_one, temporal_buffer_player_two, &writing_player_one, &writing_player_two, game_mode);
-
+        if(game_mode == 0){ 
             BeginDrawing();
-            ClearBackground(RAYWHITE);
-            if(writing_player_one){
-                DrawText("Player 1 name: ", 50, 50, 30, BLACK);
-                DrawText(temporal_buffer_player_one, 50, 100, 30, DARKPURPLE);
-            }
-            if(writing_player_two){
-                DrawText("Player 2 name: ", 50, 50, 30, BLACK);
-                DrawText(temporal_buffer_player_two, 50, 100, 30, DARKPURPLE);
-            }
+                if (game_on == 1){
+                    actualScreen = UpdateMenu(actualScreen, &game_mode);
+                }
             EndDrawing();
-            if(captura == 1){
-                names_done = 1;
+        } else if(game_mode != 0) {
+
+            if(names_done == 0){//Captura de nombres.
+                int captura = capturePlayerName(temporal_buffer_player_one, temporal_buffer_player_two, &writing_player_one, &writing_player_two, game_mode);
+
+                BeginDrawing();
+                ClearBackground(RAYWHITE);
+                if(writing_player_one){
+                    DrawText("Player 1 name: ", 50, 50, 30, BLACK);
+                    DrawText(temporal_buffer_player_one, 50, 100, 30, DARKPURPLE);
+                }
+                if(writing_player_two){
+                    DrawText("Player 2 name: ", 50, 50, 30, BLACK);
+                    DrawText(temporal_buffer_player_two, 50, 100, 30, DARKPURPLE);
+                }
+                EndDrawing();
+                if(captura == 1){
+                    names_done = 1;
+                }
+                continue;
             }
-            continue;
-        }
-
-        if(names_done == 1){//Si aún no los captura, lo hace.
-            names_done = 2;
-            const char *p2 = (game_mode == 2) ? temporal_buffer_player_two : "";
-            setName(&name, game_mode, temporal_buffer_player_one, p2);
-        }
-
-        if(game_on == 1 && names_done == 2){//Detecta si se presiona la barra espaciadora para tirar el dado.
-            if(IsKeyPressed(KEY_SPACE) && enable_dice == 0 && dice_was_rolled == 0){
-                dice_value = rollDice();
-                dice_was_rolled = 1;
-                printf("%d -> dice value = %d\n",current_turn ,dice_value);
-                fflush(stdout);
-            } else if(enable_dice == 1 && dice_was_rolled == 0){
-                dice_value = rollDice();
-                dice_was_rolled = 1;
-                printf(" computer -> dice value = %d\n", dice_value);
-                fflush(stdout);
+    
+            if(names_done == 1){//Si aún no los captura, lo hace.
+                names_done = 2;
+                const char *p2 = (game_mode == 2) ? temporal_buffer_player_two : "";
+                setName(&name, game_mode, temporal_buffer_player_one, p2);
             }
-        }
-
-        BeginDrawing();
-
-        if(game_on == 1){
-            ClearBackground(BLUE);
-            DrawTexture(grid_image, 0, 0, WHITE);
-            DrawText("Press space key to roll the dice.", 250, 40, 30, BLACK);
-            DrawDice(dice_value, dicetextures); //Dibuja el dado
-            DrawText(name.player_one_name, 300, 760, 30, BLACK); 
-            drawToken();//Dibuja las fihcas
-            if(game_mode != 1){
-                DrawText(name.player_two_name, 300, 860, 30, BLACK);
+    
+            if(game_on == 1 && names_done == 2){//Detecta si se presiona la barra espaciadora para tirar el dado.
+                if(IsKeyPressed(KEY_SPACE) && enable_dice == 0 && dice_was_rolled == 0){
+                    dice_value = rollDice();
+                    dice_was_rolled = 1;
+                    printf("%d -> dice value = %d\n",current_turn ,dice_value);
+                    fflush(stdout);
+                } else if(enable_dice == 1 && dice_was_rolled == 0){
+                    dice_value = rollDice();
+                    dice_was_rolled = 1;
+                    printf(" computer -> dice value = %d\n", dice_value);
+                    fflush(stdout);
+                }
             }
+    
+            BeginDrawing();
+    
+            if(game_on == 1){
+                ClearBackground(BLUE);
+                DrawTexture(grid_image, 0, 0, WHITE);
+                DrawText("Press space key to roll the dice.", 250, 40, 30, BLACK);
+                DrawDice(dice_value, dicetextures); //Dibuja el dado
+                drawToken(&player_position_one, RED);//Dibuja las fihcas
+                drawToken(&player_position_two, BLUE);//Dibuja las fihcas
+                DrawText(name.player_one_name, 300, 760, 30, RED); 
+                if(game_mode != 1){
+                    DrawText(name.player_two_name, 300, 860, 30, BLUE);
+                }
 
-            switch(game_mode){//Tres modos de juego.
-                case 1:
-                    if(dice_was_rolled == 1){
-                        playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on, &winner);
-                        dice_was_rolled = 0;
-                    }
-                    break;
-                case 2:
-                    if(dice_was_rolled == 1){
-                        if(current_turn % 2 == 0){
-                            playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_two, &counter_dice_condition_two, &current_turn, &game_on, &winner);
-                        } else {
+                switch(game_mode){//Tres modos de juego.
+                    case 1:
+                        if(dice_was_rolled == 1){
                             playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on, &winner);
+                            dice_was_rolled = 0;
                         }
-                        dice_was_rolled = 0;
-                    }
-                    break;
-                case 3:
-                    if(dice_was_rolled == 1){
-                        if(current_turn % 2 == 0){
-                            playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_two, &counter_dice_condition_two, &current_turn, &game_on, &winner);
-                        } else {
-                            playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on, &winner);
+                        break;
+                    case 2:
+                        if(dice_was_rolled == 1){
+                            if(current_turn % 2 == 0){
+                                playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_two, &counter_dice_condition_two, &current_turn, &game_on, &winner);
+                            } else {
+                                playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on, &winner);
+                            }
+                            dice_was_rolled = 0;
                         }
-                        dice_was_rolled = 0;
-
-                        (current_turn % 2 != 0) ? WaitTime(3.0) : (void)0;
-                        enable_dice = (current_turn % 2 == 0) ? 1 : 0;
-                    }
-                    break;
+                        break;
+                    case 3:
+                        if(dice_was_rolled == 1){
+                            if(current_turn % 2 == 0){
+                                playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_two, &counter_dice_condition_two, &current_turn, &game_on, &winner);
+                            } else {
+                                playerTurn(logic_board, board_size, enable_dice, &dice_value, &player_position_one, &counter_dice_condition_one, &current_turn, &game_on, &winner);
+                            }
+                            dice_was_rolled = 0;
+    
+                            (current_turn % 2 != 0) ? WaitTime(2.0) : (void)0;
+                            enable_dice = (current_turn % 2 == 0) ? 1 : 0;
+                        }
+                        break;
+                }
+            } else if(game_on == 0){
+                ClearBackground(LIGHTGRAY);  
+                DrawText("Press w to exit.", 500, 200, 50, BLUE);
+    
+                if(winner == 2){
+                    sprintf(winner_output, "Player %s wins!", name.player_two_name);
+                    DrawText(winner_output, 300, 500, 50, BLUE);
+                } else {
+                    sprintf(winner_output, "Player %s wins!", name.player_one_name);
+                    DrawText(winner_output, 300, 500, 50, RED);
+                }
+    
+                if(IsKeyPressed(KEY_W)){
+                    game_mode = 0;
+                    game_on = 1;
+                    player_position_one = 1;
+                    counter_dice_condition_one = 0;   
+                    player_position_two = 1;
+                    counter_dice_condition_two = 0; 
+                    current_turn = 5; 
+                    temporal_buffer_player_one[0] = '\0';
+                    temporal_buffer_player_two[0] = '\0';
+                    writing_player_one = 1;
+                    writing_player_two = 0;
+                    names_done = 0;
+                    struct PlayerName name = {"", "Computer friend"};
+                    winner = 0;
+                }
             }
-        } else if(game_on == 0){
-            ClearBackground(LIGHTGRAY);  
-            DrawText("Press w to exit.", 500, 200, 50, BLUE);
+    
+            EndDrawing();
+        }//cierra else 
+        
 
-            if(winner == 2){
-                sprintf(winner_output, "Player %s wins!", name.player_two_name);
-                DrawText(winner_output, 300, 500, 50, BLUE);
-            } else {
-                sprintf(winner_output, "Player %s wins!", name.player_one_name);
-                DrawText(winner_output, 300, 500, 50, BLUE);
-            }
-
-            if(IsKeyPressed(KEY_W)){
-                break;
-            }
-        }
-
-        EndDrawing();
 
         //Agregar botones para usar esto
 /*        BeginDrawing();//Recibe donde guardar la partida.
