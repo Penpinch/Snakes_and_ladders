@@ -31,7 +31,7 @@ void cheekSpecialCell(int board[]){
     board[75] = 96;
 
     //Snakes
-    board[99] = 59;
+    /*board[99] = 59;
     board[95] = 76;
     board[92] = 73;
     board[84] = 46;
@@ -39,10 +39,10 @@ void cheekSpecialCell(int board[]){
     board[62] = 24;
     board[32] = 5;
     board[28] = 8;
-    board[11] = 2;
+    board[11] = 2;*/
 }
 
-void setName(struct PlayerName *name, int game_mode, const char *input_player_one, const char *input_player_two){
+void setName(struct PlayerName *name, int game_mode, char *input_player_one, char *input_player_two){
     switch (game_mode){
         case 1:
         case 3:
@@ -59,41 +59,57 @@ void setName(struct PlayerName *name, int game_mode, const char *input_player_on
     }
 }
 
-void saveGame(const struct PlayerName *name, int save_option, int player_position_one, int player_position_two, int current_turn, int counter_dice_condition_one, int counter_dice_condition_two, int game_mode){
-    char name_files[15];
-    sprintf(name_files, "Game %d.txt", save_option);
+void saveGame(struct PlayerName *name, int save_option, int player_position_one, int player_position_two, int current_turn, int counter_dice_condition_one, int counter_dice_condition_two, int game_mode, int names_done){
+    char name_files[32];
+    snprintf(name_files, sizeof(name_files), "Game %d.txt", save_option);
 
     FILE *file = fopen(name_files, "w");
-
-    if(file != NULL){
-        if(game_mode == 1){
-            //Game mode, Player name, Player position
-            fprintf(file, "%d %s %d", game_mode, name -> player_one_name, player_position_one);
-        } else {
-            //Game mode, Current turn, Player one name, Player position one, Dice counter one, Player two name, Player position two, Dice counter two
-            fprintf(file, "%d %d %s %d %d %s %d %d", game_mode, current_turn, name -> player_one_name, player_position_one, counter_dice_condition_one, name -> player_two_name, player_position_two, counter_dice_condition_two);
-        }
-        fclose(file);
+    if(file == NULL){
+        perror("Error opening save file");
+        return;
     }
+
+    if(game_mode == 1){
+        // formato: <game_mode> <player_one_name> <player_position_one>
+        fprintf(file, "%d %d %s %d %d %s %d %d %d\n", game_mode, names_done, name->player_one_name, player_position_one, 0, "Friend_computer", 1, 0, 5);
+        } else {
+        // formato: <game_mode> <current_turn> <player_one_name> <player_position_one> <counter1> <player_two_name> <player_position_two> <counter2>
+        fprintf(file, "%d %d %s %d %d %s %d %d %d\n", game_mode, names_done, name->player_one_name, player_position_one, counter_dice_condition_one, name->player_two_name, player_position_two, counter_dice_condition_two, current_turn);
+    }
+    fclose(file);
 }
 
-void loadGame(const struct PlayerName *name, int game_load, int *player_position_one, int *player_position_two, int *current_turn, int *counter_dice_condition_one, int *counter_dice_condition_two, int *game_mode){
+void loadGame(struct PlayerName *name, int *game_load, int *player_position_one, int *player_position_two, int *current_turn, int *counter_dice_condition_one, int *counter_dice_condition_two, int *game_mode, int *names_done){
     int temporal_game_mode;
-    char name_files[15];
+    char name_files[32];
+    int temp_cdco, temp_pp2, temp_cdct, temp_ct;
+    char temp_pnt[20];
 
-    sprintf(name_files, "Game %d.txt", game_load);
+    snprintf(name_files, sizeof(name_files), "Game %d.txt", *game_load);
 
     FILE *file = fopen(name_files, "r");
     if(file == NULL){
-        printf("Error loadinf file.");
+        printf("Error loading file: %s\n", name_files);
         return;
     }
-    fscanf(file, "%d", &temporal_game_mode);
+
+    if(fscanf(file, "%d", &temporal_game_mode) != 1){
+        printf("Error leyendo el modo de juego\n");
+        fclose(file);
+        return;
+    }
+    *game_mode = temporal_game_mode;
 
     if(temporal_game_mode == 1){
-        fscanf(file, "%d %s %d", game_mode, name -> player_one_name, player_position_one);
+        // después de leer el modo, quedan: <player_one_name> <player_position_one>
+        if(fscanf(file, "%d %s %d %d %s %d %d %d", names_done, name->player_one_name, player_position_one, &temp_cdco, &temp_pnt, &temp_pp2, &temp_cdct, &temp_ct) != 8){
+            printf("Error leyendo partida modo 1\n");
+        }
     } else {
-        fscanf(file, "%d %d %s %d %d %s %d %d", game_mode, current_turn, name -> player_one_name, player_position_one, counter_dice_condition_one, name -> player_two_name, player_position_two, counter_dice_condition_two);
+        // después del modo, quedan: <current_turn> <player_one_name> <player_position_one> <counter1> <player_two_name> <player_position_two> <counter2>
+        if(fscanf(file, "%d %s %d %d %s %d %d %d", names_done, name->player_one_name, player_position_one, counter_dice_condition_one, name->player_two_name, player_position_two, counter_dice_condition_two, current_turn) != 8){
+            printf("Error leyendo partida modo 2 o 3\n");
+        } 
     }
     fclose(file);
 } 

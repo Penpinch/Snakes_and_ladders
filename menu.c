@@ -1,5 +1,7 @@
 #include "raylib.h"
 #include "menu.h"
+#include "logic.h"
+#include <stdio.h>
 
 // Definimos los estados posibles de la aplicación
 
@@ -18,9 +20,10 @@ void DrawTitleCentered(const char* text, int y, int fontSize, Color color) {
     DrawText(text, textX, y, fontSize, color);
 }
 
-
-
-Screen UpdateMenu(Screen actualScreen, int *game_mode) {
+Screen UpdateMenu(
+    Screen actualScreen, int *game_mode, int *save_option, int *load_game, int *player_position_one, int *player_position_two, 
+    int *current_turn, int *counter_dice_condition_one, int *counter_dice_condition_two, int *dice_was_rolled, int *dice_value, 
+    int *writing_player_one, int *writing_player_two, struct PlayerName *name, int *names_done, int *new_game){
     // --- CONFIGURACIÓN DE TAMAÑOS ---
     const int screenWidth = 800;
     const int screenHeight = 450;
@@ -32,25 +35,28 @@ Screen UpdateMenu(Screen actualScreen, int *game_mode) {
 
     Vector2 mouse = GetMousePosition();
 
-    Rectangle btnJugar   = { btnX, startY, btnWidth, btnHeight };
-    Rectangle btnGuardar = { btnX, startY + (btnHeight + spacing), btnWidth, btnHeight };
-    Rectangle btnCargar  = { btnX, startY + (btnHeight + spacing) * 2, btnWidth, btnHeight };
+    Rectangle btnJugar   = {btnX, startY, btnWidth, btnHeight};
+    Rectangle btnGuardar = {btnX, startY + (btnHeight + spacing), btnWidth, btnHeight};
+    Rectangle btnCargar  = {btnX, startY + (btnHeight + spacing) * 2, btnWidth, btnHeight};
 
-    Rectangle btnSub1 = { btnX, 150, btnWidth, btnHeight };
-    Rectangle btnSub2 = { btnX, 150 + (btnHeight + spacing), btnWidth, btnHeight };
-    Rectangle btnSub3 = { btnX, 150 + (btnHeight + spacing) * 2, btnWidth, btnHeight };
-    Rectangle btnVolver = { btnX, 150 + (btnHeight + spacing) * 3 + 10, btnWidth, 40 };
+    Rectangle btnSub1 = {btnX, 150, btnWidth, btnHeight};
+    Rectangle btnSub2 = {btnX, 150 + (btnHeight + spacing), btnWidth, btnHeight};
+    Rectangle btnSub3 = {btnX, 150 + (btnHeight + spacing) * 2, btnWidth, btnHeight};
+    Rectangle btnVolver = {btnX, 150 + (btnHeight + spacing) * 3 + 10, btnWidth, 40};
 
-    
     ClearBackground(RAYWHITE);
-    
 
-    switch (actualScreen) {
+    switch(actualScreen){
 
         // ---------------- MENÚ PRINCIPAL ----------------
         case MENU_PRINCIPAL:{
         
             DrawTitleCentered("SNAKES AND LADDERS", 80, 40, BLACK);
+            float centerX_menu_princ = (GetScreenWidth() - btnJugar.width) / 2;
+            btnJugar.x = centerX_menu_princ;
+            btnGuardar.x = centerX_menu_princ;
+            btnCargar.x = centerX_menu_princ;
+            btnVolver.x = centerX_menu_princ;
 
             // --- JUGAR ---
             if (CheckCollisionPointRec(mouse, btnJugar)) {
@@ -70,10 +76,11 @@ Screen UpdateMenu(Screen actualScreen, int *game_mode) {
             DrawTextCentered("GUARDAR", btnGuardar, 20, BLACK);
 
             // --- CARGAR ---
-            if (CheckCollisionPointRec(mouse, btnCargar)) {
+            if(CheckCollisionPointRec(mouse, btnCargar)) {
                 DrawRectangleRec(btnCargar, GRAY);
-                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
                     actualScreen = MENU_CARGA;
+                }
             } else DrawRectangleRec(btnCargar, LIGHTGRAY);
             DrawTextCentered("CARGAR", btnCargar, 20, BLACK);
         }break;
@@ -82,26 +89,38 @@ Screen UpdateMenu(Screen actualScreen, int *game_mode) {
         // ---------------- MENU_JUEGO ----------------
         case MENU_JUEGO:{
         
-            DrawTitleCentered("SELECCIONA DIFICULTAD", 80, 30, DARKBLUE);
+            DrawTitleCentered("SELECCIONA MODO DE JUEGO", 80, 30, DARKBLUE);
+            
+            float centerX = (GetScreenWidth() - btnSub1.width) / 2;
+            btnSub1.x = centerX;
+            btnSub2.x = centerX;
+            btnSub3.x = centerX;
+            btnVolver.x = centerX;
 
             if (CheckCollisionPointRec(mouse, btnSub1)) {
                 DrawRectangleRec(btnSub1, DARKGREEN);
-                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+                    *new_game = 1;
                     *game_mode = 1;
+                }
             } else DrawRectangleRec(btnSub1, GREEN);
             DrawTextCentered("UN JUGADOR", btnSub1, 20, WHITE);
 
             if (CheckCollisionPointRec(mouse, btnSub2)) {
                 DrawRectangleRec(btnSub2, MAROON);
-                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+                    *new_game = 1;
                     *game_mode = 2;
+                }
             } else DrawRectangleRec(btnSub2, RED);
             DrawTextCentered("DOS JUGADORES", btnSub2, 20, WHITE);
 
             if (CheckCollisionPointRec(mouse, btnSub3)) {
                 DrawRectangleRec(btnSub3, PURPLE);
-                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+                    *new_game = 1;
                     *game_mode = 3;
+                }
             } else DrawRectangleRec(btnSub3, VIOLET);
             DrawTextCentered("CONTRA CPU", btnSub3, 20, WHITE);
 
@@ -119,58 +138,82 @@ Screen UpdateMenu(Screen actualScreen, int *game_mode) {
         
             DrawTitleCentered("CARGAR PARTIDA", 80, 30, DARKBLUE);
 
-            if (CheckCollisionPointRec(mouse, btnSub1)) {
-                DrawRectangleRec(btnSub1, BLUE);
-                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-                    TraceLog(LOG_INFO, "Cargando 1...");
-            } else DrawRectangleRec(btnSub1, SKYBLUE);
-            DrawTextCentered("PARTIDA 1", btnSub1, 20, WHITE);
+            float btnX = (GetScreenWidth() - btnWidth) / 2;
 
-            if (CheckCollisionPointRec(mouse, btnSub2)) {
-                DrawRectangleRec(btnSub2, BLUE);
-                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-                    TraceLog(LOG_INFO, "Cargando 2...");
-            } else DrawRectangleRec(btnSub2, SKYBLUE);
-            DrawTextCentered("PARTIDA 2", btnSub2, 20, WHITE);
+            Rectangle btnLoad1 = {btnX, 150, btnWidth, btnHeight};
+            Rectangle btnLoad2 = {btnX, 150 + (btnHeight + spacing), btnWidth, btnHeight};
+            Rectangle btnLoad3 = {btnX, 150 + (btnHeight + spacing) * 2, btnWidth, btnHeight};
+            Rectangle btnLoadBack = {btnX, 150 + (btnHeight + spacing) * 3 + 10, btnWidth, 40};
 
-            if (CheckCollisionPointRec(mouse, btnSub3)) {
-                DrawRectangleRec(btnSub3, BLUE);
-                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-                    TraceLog(LOG_INFO, "Cargando 3...");
-            } else DrawRectangleRec(btnSub3, SKYBLUE);
-            DrawTextCentered("PARTIDA 3", btnSub3, 20, WHITE);
+            if (CheckCollisionPointRec(mouse, btnLoad1)) {
+                DrawRectangleRec(btnLoad1, BLUE);
+                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+                    *load_game = 1;
+                }
+            } else DrawRectangleRec(btnLoad1, SKYBLUE);
+            DrawTextCentered("PARTIDA 1", btnLoad1, 20, WHITE);
 
-            if (CheckCollisionPointRec(mouse, btnVolver)) {
-                DrawRectangleRec(btnVolver, BLACK);
+            if (CheckCollisionPointRec(mouse, btnLoad2)) {
+                DrawRectangleRec(btnLoad2, BLUE);
+                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+                    *load_game = 2;
+                }
+            } else DrawRectangleRec(btnLoad2, SKYBLUE);
+            DrawTextCentered("PARTIDA 2", btnLoad2, 20, WHITE);
+
+            if (CheckCollisionPointRec(mouse, btnLoad3)) {
+                DrawRectangleRec(btnLoad3, BLUE);
+                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+                    *load_game = 3;
+                }
+            } else DrawRectangleRec(btnLoad3, SKYBLUE);
+            DrawTextCentered("PARTIDA 3", btnLoad3, 20, WHITE);
+
+            if (CheckCollisionPointRec(mouse, btnLoadBack)) {
+                DrawRectangleRec(btnLoadBack, BLACK);
                 if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
                     actualScreen = MENU_PRINCIPAL;
-            } else DrawRectangleRec(btnVolver, GRAY);
-            DrawTextCentered("VOLVER", btnVolver, 20, WHITE);
+            } else DrawRectangleRec(btnLoadBack, GRAY);
+            DrawTextCentered("VOLVER", btnLoadBack, 20, WHITE);
         }break;
         
 
         // ---------------- MENU_GUARDAR ----------------
         case MENU_GUARDAR:{
             DrawTitleCentered("GUARDAR PARTIDA", 80, 30, DARKGREEN);
+            float centerX_menu_guar = (GetScreenWidth() - btnSub1.width) / 2;
+            btnSub1.x = centerX_menu_guar;
+            btnSub2.x = centerX_menu_guar;
+            btnSub3.x = centerX_menu_guar;
+            btnVolver.x = centerX_menu_guar;
 
             if (CheckCollisionPointRec(mouse, btnSub1)) {
                 DrawRectangleRec(btnSub1, GOLD);
-                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-                    TraceLog(LOG_INFO, "Guardando 1...");
+                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+                    *save_option = 1;
+                    printf("%d", save_option);
+                    //TraceLog(LOG_INFO, "Guardando 1...");
+                }
             } else DrawRectangleRec(btnSub1, YELLOW);
             DrawTextCentered("SLOT VACIO 1", btnSub1, 20, BLACK);
 
             if (CheckCollisionPointRec(mouse, btnSub2)) {
                 DrawRectangleRec(btnSub2, GOLD);
-                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-                    TraceLog(LOG_INFO, "Guardando 2...");
+                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+                    *save_option = 2;
+                    printf("%d", save_option);
+                    //TraceLog(LOG_INFO, "Guardando 2...");
+                }
             } else DrawRectangleRec(btnSub2, YELLOW);
             DrawTextCentered("SLOT VACIO 2", btnSub2, 20, BLACK);
 
             if (CheckCollisionPointRec(mouse, btnSub3)) {
                 DrawRectangleRec(btnSub3, GOLD);
-                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-                    TraceLog(LOG_INFO, "Guardando 3...");
+                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+                    *save_option = 3;
+                    printf("%d", save_option);
+                    //TraceLog(LOG_INFO, "Guardando 3...");
+                }
             } else DrawRectangleRec(btnSub3, YELLOW);
             DrawTextCentered("SLOT VACIO 3", btnSub3, 20, BLACK);
 
