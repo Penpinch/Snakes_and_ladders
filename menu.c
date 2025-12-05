@@ -51,6 +51,7 @@ Screen UpdateMenu(
 
         // ---------------- MENÚ PRINCIPAL ----------------
         case MENU_PRINCIPAL:{
+            ClearBackground(BEIGE);
             DrawTitleCentered("SNAKES AND LADDERS", 80, 40, BLACK);
             float centerX_menu_princ = (GetScreenWidth() - btnJugar.width) / 2;
             btnJugar.x = centerX_menu_princ;
@@ -103,6 +104,7 @@ Screen UpdateMenu(
 
         // ---------------- MENU_JUEGO ----------------
         case MENU_JUEGO:{
+            ClearBackground(BEIGE);
             DrawTitleCentered("SELECCIONA MODO DE JUEGO", 80, 30, DARKBLUE);
             float centerX = (GetScreenWidth() - btnSub1.width) / 2;
             btnSub1.x = centerX;
@@ -153,6 +155,7 @@ Screen UpdateMenu(
 
         // ---------------- MENU_CARGA ----------------
         case MENU_CARGA:{
+            ClearBackground(BEIGE);
             DrawTitleCentered("CARGAR PARTIDA", 80, 30, DARKBLUE);
             float btnX = (GetScreenWidth() - btnWidth) / 2;
             Rectangle btnLoad1 = {btnX, 150, btnWidth, btnHeight};
@@ -199,6 +202,7 @@ Screen UpdateMenu(
 
         // ---------------- MENU_GUARDAR ----------------
         case MENU_GUARDAR:{
+            ClearBackground(BEIGE);
             DrawTitleCentered("GUARDAR PARTIDA", 80, 30, DARKGREEN);
             float centerX_menu_guar = (GetScreenWidth() - btnSub1.width) / 2;
             btnSub1.x = centerX_menu_guar;

@@ -233,14 +233,14 @@ int main(){
                 int captura = capturePlayerName(temporal_buffer_player_one, temporal_buffer_player_two, &writing_player_one, &writing_player_two, game_mode);
 
                 BeginDrawing();
-                ClearBackground(RAYWHITE);
+                ClearBackground(BEIGE);
                 if(writing_player_one){
-                    DrawText("Player 1 name: ", 50, 50, 30, BLACK);
-                    DrawText(temporal_buffer_player_one, 50, 100, 30, DARKPURPLE);
+                    DrawText("Player 1 name: ", 50, 50, 45, BLACK);
+                    DrawText(temporal_buffer_player_one, 50, 100, 35, RED);
                 }
                 if(writing_player_two){
-                    DrawText("Player 2 name: ", 50, 50, 30, BLACK);
-                    DrawText(temporal_buffer_player_two, 50, 100, 30, DARKPURPLE);
+                    DrawText("Player 2 name: ", 50, 50, 45, BLACK);
+                    DrawText(temporal_buffer_player_two, 50, 100, 35, DARKBLUE);
                 }
                 EndDrawing();
                 if(captura == 1){
@@ -278,9 +278,9 @@ int main(){
                 drawToken(&player_position_one, RED);//Dibuja la fihca del jugador 1.
                 drawToken(&player_position_two, BLUE);//Dibuja la fihca del jugador 2.
 
-                DrawText(name.player_one_name, 300, 760, 30, RED);//Dibuja los nombres.
+                DrawText(name.player_one_name, 300, 760, 35, RED);//Dibuja los nombres.
                 if(game_mode != 1){
-                    DrawText(name.player_two_name, 300, 860, 30, BLUE);
+                    DrawText(name.player_two_name, 300, 860, 35, BLUE);
                 }
 
                 switch(game_mode){//Lógica de los 3 modos de juego.
@@ -314,9 +314,23 @@ int main(){
                         }
                         break;
                     }
-            } else if(game_on == 0){//Pantalla de ganador.
+
+            if(IsKeyPressed(KEY_S)){
+                BeginDrawing();
+                    ClearBackground(BEIGE);
+                    prev_game_mode = game_mode;
+                    game_on = 1;
+                    game_mode = 0;
+                    actualScreen = UpdateMenu(//Llama al menú de guardado.
+                        MENU_GUARDAR, &game_mode, &save_option, &game_load, &player_position_one, &player_position_two, 
+                        &current_turn, &counter_dice_condition_one, &counter_dice_condition_two, &dice_was_rolled, &dice_value, 
+                        &writing_player_one, &writing_player_two, &name, &names_done, &new_game, &should_exit);
+                EndDrawing();
+            }
+
+            } else if(game_on == 0 && player_position_one >= 100 || player_position_two >= 100){//Pantalla de ganador.
                 ClearBackground(LIGHTGRAY);  
-                DrawText("Press w to exit.", 500, 200, 50, BLUE);
+                DrawText("Press w to exit.", 300, 200, 50, BLUE);
 
                 if(winner == 2){
                     sprintf(winner_output, "Player %s wins!", name.player_two_name);
@@ -325,7 +339,7 @@ int main(){
                     sprintf(winner_output, "Player %s wins!", name.player_one_name);
                     DrawText(winner_output, 300, 500, 50, RED);
                 }
-                
+
                 if(IsKeyPressed(KEY_W)){
                     prev_game_mode = game_mode;
                     game_on = 1;
