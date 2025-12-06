@@ -7,7 +7,7 @@
 # include "grid.h" 
 # include "menu.h"
 
-//gcc snakesAndLadders.c logic.c grid.c menu.c -o q -lraylib -lopengl32 -lgdi32 -lwinmm -mconsole
+//gcc snakesAndLadders.c logic.c grid.c menu.c -o finalver -lraylib -lopengl32 -lgdi32 -lwinmm -mconsole
 
 void playerTurn(//Esta función tiene todo el apartado logico de los turnos, mover casilla, serpientes, escaleras, etc 
     int logic_board[], int board_size, int enable_dice, int *num_dice, 
@@ -182,6 +182,10 @@ int main(){
                         actualScreen, &game_mode, &save_option, &game_load, &player_position_one, &player_position_two, 
                         &current_turn, &counter_dice_condition_one, &counter_dice_condition_two, &dice_was_rolled, &dice_value, 
                         &writing_player_one, &writing_player_two, &name, &names_done, &new_game, &should_exit);
+
+                    if(IsKeyPressed(KEY_B)){
+                        game_mode = prev_game_mode;
+                    }
                 }
             EndDrawing();
 
@@ -273,15 +277,25 @@ int main(){
             if(game_on == 1){//Secuencia del juego.
                 ClearBackground(BLUE);
                 DrawTexture(grid_image, 0, 0, WHITE);//Tablero en el fondo.
-                DrawText("Press space key to roll the dice.", 250, 40, 30, BLACK);
+                DrawText("Press space key to roll the dice.", (1000 - MeasureText("Press space key to roll the dice.", 30)) / 2, 40, 30, BLACK);
                 DrawDice(dice_value, dicetextures); //Dibuja el dado.
                 drawToken(&player_position_one, RED);//Dibuja la fihca del jugador 1.
                 drawToken(&player_position_two, BLUE);//Dibuja la fihca del jugador 2.
+                
+                DrawText("Don't let it get to 3!", 730, 760, 25, BLACK);
+                char showcdc[2];
+                sprintf(showcdc, "%d", counter_dice_condition_one);
+                DrawText(showcdc, 820, 800, 25, RED);
 
-                DrawText(name.player_one_name, 300, 760, 35, RED);//Dibuja los nombres.
+                DrawText(name.player_one_name, 275, 760, 35, RED);//Dibuja los nombres.
                 if(game_mode != 1){
-                    DrawText(name.player_two_name, 300, 860, 35, BLUE);
+                    DrawText(name.player_two_name, 275, 860, 35, BLUE);
+                    sprintf(showcdc, "%d", counter_dice_condition_two);
+                    DrawText(showcdc, 920, 800, 25, BLUE);
                 }
+
+                DrawText("'s' to exit.", 600, 950, 25, BLACK);
+                DrawText("'b' to go back.", 800, 950, 25, BLACK);
 
                 switch(game_mode){//Lógica de los 3 modos de juego.
                     case 1://Modo en solitario.
@@ -316,28 +330,28 @@ int main(){
                     }
 
             if(IsKeyPressed(KEY_S)){
-                BeginDrawing();
-                    ClearBackground(BEIGE);
-                    prev_game_mode = game_mode;
-                    game_on = 1;
-                    game_mode = 0;
-                    actualScreen = UpdateMenu(//Llama al menú de guardado.
-                        MENU_GUARDAR, &game_mode, &save_option, &game_load, &player_position_one, &player_position_two, 
-                        &current_turn, &counter_dice_condition_one, &counter_dice_condition_two, &dice_was_rolled, &dice_value, 
-                        &writing_player_one, &writing_player_two, &name, &names_done, &new_game, &should_exit);
-                EndDrawing();
+                ClearBackground(BEIGE);
+                prev_game_mode = game_mode;
+                game_on = 1;
+                game_mode = 0;
+                actualScreen = UpdateMenu(//Llama al menú de guardado.
+                    MENU_GUARDAR, &game_mode, &save_option, &game_load, &player_position_one, &player_position_two, 
+                    &current_turn, &counter_dice_condition_one, &counter_dice_condition_two, &dice_was_rolled, &dice_value, 
+                    &writing_player_one, &writing_player_two, &name, &names_done, &new_game, &should_exit);
             }
 
             } else if(game_on == 0 && player_position_one >= 100 || player_position_two >= 100){//Pantalla de ganador.
                 ClearBackground(LIGHTGRAY);  
-                DrawText("Press w to exit.", 300, 200, 50, BLUE);
+                
+                DrawText("Press w to exit.", (1000 - MeasureText("Press w to exit.", 30)) / 2, 950, 30, BLACK);
 
+                int text_width = MeasureText(winner_output, 50);
                 if(winner == 2){
                     sprintf(winner_output, "Player %s wins!", name.player_two_name);
-                    DrawText(winner_output, 300, 500, 50, BLUE);
+                    DrawText(winner_output, (1000 - text_width) / 2, (1000 - 50) / 2, 50, BLUE);
                 } else {
                     sprintf(winner_output, "Player %s wins!", name.player_one_name);
-                    DrawText(winner_output, 300, 500, 50, RED);
+                    DrawText(winner_output, (1000 - text_width) / 2, (1000 - 50) / 2, 50, RED);
                 }
 
                 if(IsKeyPressed(KEY_W)){
