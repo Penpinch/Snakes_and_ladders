@@ -14,13 +14,13 @@ void DrawTextCentered(const char* text, Rectangle btn, int fontSize, Color color
 }
 
 // Función auxiliar para dibujar texto centrado en la pantalla 
-void DrawTitleCentered(const char* text, int y, int fontSize, Color color) {
+void DrawTitleCentered(const char* text, int y, int fontSize, Color color){
     int textWidth = MeasureText(text, fontSize); //Se utiliza la función MeasureText() de Raylib. Esto mide cuántos píxeles ocupa el texto y permite colocarlo exactamente en el centro del botón, sin importar lo que escribas.
     int textX = (GetScreenWidth() - textWidth) / 2;
     DrawText(text, textX, y, fontSize, color);
 }
 
-Screen UpdateMenu(
+Screen UpdateMenu(//Muestra el menú en la ventana justo a sus distinatas funciones.
     Screen actualScreen, int *game_mode, int *save_option, int *load_game, int *player_position_one, int *player_position_two, 
     int *current_turn, int *counter_dice_condition_one, int *counter_dice_condition_two, int *dice_was_rolled, int *dice_value, 
     int *writing_player_one, int *writing_player_two, struct PlayerName *name, int *names_done, int *new_game, int *should_exit){
@@ -33,7 +33,7 @@ Screen UpdateMenu(
     float btnX = (float)(screenWidth - btnWidth) / 2;
     float startY = 180;
 
-    Vector2 mouse = GetMousePosition();
+    Vector2 mouse = GetMousePosition();//Entrada del ratón.
 
     Rectangle btnJugar   = {btnX, startY, btnWidth, btnHeight};
     Rectangle btnGuardar = {btnX, startY + (btnHeight + spacing), btnWidth, btnHeight};
@@ -53,7 +53,7 @@ Screen UpdateMenu(
         case MENU_PRINCIPAL:{
             ClearBackground(BEIGE);
             DrawTitleCentered("SNAKES AND LADDERS", 80, 40, BLACK);
-            float centerX_menu_princ = (GetScreenWidth() - btnJugar.width) / 2;
+            float centerX_menu_princ = (GetScreenWidth() - btnJugar.width) / 2; //Centrar botones.
             btnJugar.x = centerX_menu_princ;
             btnGuardar.x = centerX_menu_princ;
             btnCargar.x = centerX_menu_princ;
@@ -61,12 +61,12 @@ Screen UpdateMenu(
             btnVolver.x = centerX_menu_princ;
 
             // --- JUGAR ---
-            if (CheckCollisionPointRec(mouse, btnJugar)){
+            if (CheckCollisionPointRec(mouse, btnJugar)){//Detecta si el ratón. esta sobre el área el botón.
                 DrawRectangleRec(btnJugar, GRAY);
-                if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
-                    actualScreen = MENU_JUEGO;
+                if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){//Detecta si se presiona el ratón.
+                    actualScreen = MENU_JUEGO;//Cambia a determinada pantalla.
                 }
-            } else {DrawRectangleRec(btnJugar, LIGHTGRAY);
+            } else {DrawRectangleRec(btnJugar, LIGHTGRAY);//Dibuja el ratón.
                 DrawTextCentered("JUGAR", btnJugar, 20, BLACK);
             }
 
@@ -115,8 +115,8 @@ Screen UpdateMenu(
             if(CheckCollisionPointRec(mouse, btnSub1)){
                 DrawRectangleRec(btnSub1, DARKGREEN);
                 if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
-                    *new_game = 1;
-                    *game_mode = 1;
+                    *new_game = 1; //Confirma nuevo juego.
+                    *game_mode = 1; //Determina el nuevo juego.
                 }
             } else {DrawRectangleRec(btnSub1, GREEN);
                 DrawTextCentered("UN JUGADOR", btnSub1, 20, WHITE);
@@ -166,7 +166,7 @@ Screen UpdateMenu(
             if(CheckCollisionPointRec(mouse, btnLoad1)){
                 DrawRectangleRec(btnLoad1, BLUE);
                 if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
-                    *load_game = 1;
+                    *load_game = 1; //opción a cargar.
                 }
             } else {DrawRectangleRec(btnLoad1, SKYBLUE);
                 DrawTextCentered("PARTIDA 1", btnLoad1, 20, WHITE);
@@ -213,7 +213,7 @@ Screen UpdateMenu(
             if(CheckCollisionPointRec(mouse, btnSub1)){
                 DrawRectangleRec(btnSub1, GOLD);
                 if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
-                    *save_option = 1;
+                    *save_option = 1; //opción a guardar.
                     printf("%d", save_option);
                 }
             } else {DrawRectangleRec(btnSub1, YELLOW);
@@ -250,7 +250,7 @@ Screen UpdateMenu(
             }
         }break;
     }
-    return actualScreen;
+    return actualScreen; //Retorna la panatalla que se mostrará
 }
 
 

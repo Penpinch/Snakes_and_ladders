@@ -4,10 +4,9 @@
 # include <time.h>
 # include "logic.h"
 # include <string.h>
-# include "grid.h" 
 # include "menu.h"
 
-//gcc snakesAndLadders.c logic.c grid.c menu.c -o finalver -lraylib -lopengl32 -lgdi32 -lwinmm -mconsole
+//gcc snakesAndLadders.c logic.c menu.c -o finalver -lraylib -lopengl32 -lgdi32 -lwinmm -mconsole
 
 void playerTurn(//Esta función tiene todo el apartado logico de los turnos, mover casilla, serpientes, escaleras, etc 
     int logic_board[], int board_size, int enable_dice, int *num_dice, 
@@ -114,6 +113,18 @@ int capturePlayerName(//Esta funcion captura el nombre del los jugadores.
         }
     }
     return 0;
+}
+
+void DrawDice(int dice_value, Texture2D dicetextures[]){//Dibuja el dado en pantalla.
+    if(dice_value < 1 || dice_value > 6){
+        return;
+    }
+    Texture2D t = dicetextures[dice_value - 1];
+    if(t.width <= 0 || t.height <= 0){
+        return;
+    }
+
+    DrawTexture(dicetextures[dice_value - 1], 50, 750, WHITE);
 }
 
 void drawToken(int *player_position, Color color){//Esta funcion dibuja las fichas.
@@ -280,8 +291,7 @@ int main(){
                 DrawText("Press space key to roll the dice.", (1000 - MeasureText("Press space key to roll the dice.", 30)) / 2, 40, 30, BLACK);
                 DrawDice(dice_value, dicetextures); //Dibuja el dado.
                 drawToken(&player_position_one, RED);//Dibuja la fihca del jugador 1.
-                drawToken(&player_position_two, BLUE);//Dibuja la fihca del jugador 2.
-                
+
                 DrawText("Don't let it get to 3!", 730, 760, 25, BLACK);
                 char showcdc[2];
                 sprintf(showcdc, "%d", counter_dice_condition_one);
@@ -292,6 +302,7 @@ int main(){
                     DrawText(name.player_two_name, 275, 860, 35, BLUE);
                     sprintf(showcdc, "%d", counter_dice_condition_two);
                     DrawText(showcdc, 920, 800, 25, BLUE);
+                    drawToken(&player_position_two, BLUE);//Dibuja la fihca del jugador 2.
                 }
 
                 DrawText("'s' to exit.", 600, 950, 25, BLACK);
