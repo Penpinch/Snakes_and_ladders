@@ -8,7 +8,7 @@
 
 //gcc snakesAndLadders.c logic.c menu.c -o finalver -lraylib -lopengl32 -lgdi32 -lwinmm -mconsole
 
-void playerTurn(//Esta función tiene todo el apartado logico de los turnos, mover casilla, serpientes, escaleras, etc 
+void playerTurn(//Esta función tiene todo el apartado logico de los turnos, mover posiciones, serpientes, escaleras, etc 
     int logic_board[], int board_size, int enable_dice, int *num_dice, 
     int *game_mode, int *player_position, int *counter_dice_condition, int *curren_turn, int *game_on, int *winner){
 
